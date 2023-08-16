@@ -1,0 +1,13 @@
+[
+  {
+    "modid": "specifiedspawning",
+    "name": "Specified Spawning",
+    "description": "Allows for additions, removals, and modifications to mob spawning and mob spawning groups",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://www.curseforge.com/minecraft/mc-mods/specified-spawning",
+    "authorList": ["The_Computerizer"],
+    "logoFile": "specifiedspawning.png",
+    "dependencies": ["theimpossiblelibrary"]
+  }
+]
