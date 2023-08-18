@@ -1,5 +1,6 @@
-package mods.thecomputerizer.specifiedspawning;
+package mods.thecomputerizer.specifiedspawning.world;
 
+import mods.thecomputerizer.specifiedspawning.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.util.ThreadSafety;
 import net.minecraft.entity.Entity;
@@ -21,8 +22,11 @@ public class SpawnManager {
     public static void loadDefaultSpawnEntries() {
         for(Biome biome : ForgeRegistries.BIOMES.getValuesCollection()) {
             DEFAULT_SPAWN_ENTRIES.putIfAbsent(biome,new HashMap<>());
-            for(EnumCreatureType creatureType : EnumCreatureType.values())
-                DEFAULT_SPAWN_ENTRIES.get(biome).put(creatureType,biome.getSpawnableList(creatureType));
+            for(EnumCreatureType creatureType : EnumCreatureType.values()) {
+                DEFAULT_SPAWN_ENTRIES.get(biome).put(creatureType, biome.getSpawnableList(creatureType));
+                Constants.LOGGER.error("ADDED ENUM TYPE {} with {} ENTRIES TO BIOME {}",creatureType,
+                        biome.getSpawnableList(creatureType).size(),biome.getRegistryName());
+            }
         }
     }
 
@@ -44,25 +48,20 @@ public class SpawnManager {
     }
 
     public static EnumCreatureType getEntityType(Class<? extends Entity> entityClass) {
-        return CREATURE_TYPE_MAP.get(entityClass);
-    }
-
-    public static boolean hasRules(EntityLiving entity) {
-        return false;
-    }
-
-    public static boolean checkWorld(World world) {
-        return false;
+        return EnumCreatureType.MONSTER;
+        //return CREATURE_TYPE_MAP.get(entityClass);
     }
 
     public static void clear() {
         for(Map.Entry<Biome,Map<EnumCreatureType,List<Biome.SpawnListEntry>>> biomeEntry : DEFAULT_SPAWN_ENTRIES.entrySet()) {
             Biome biome = biomeEntry.getKey();
+            Constants.LOGGER.error("RESETTING BIOME {}",biome.getRegistryName());
             for(Map.Entry<EnumCreatureType,List<Biome.SpawnListEntry>> creatureTypeEntry : biomeEntry.getValue().entrySet()) {
                 EnumCreatureType type = creatureTypeEntry.getKey();
                 List<Biome.SpawnListEntry> spawnEntries = creatureTypeEntry.getValue();
-                biome.getSpawnableList(type).clear();
-                biome.getSpawnableList(type).addAll(spawnEntries);
+                Constants.LOGGER.error("DEFAULT TYPE {} HAD {} ENTRIES",type,spawnEntries.size());
+                //biome.getSpawnableList(type).clear();
+                //biome.getSpawnableList(type).addAll(spawnEntries);
             }
         }
         SPAWN_GROUPS.clear();

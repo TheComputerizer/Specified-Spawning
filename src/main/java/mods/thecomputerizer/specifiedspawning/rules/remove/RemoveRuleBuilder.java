@@ -1,5 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.rules.remove;
 
+import mods.thecomputerizer.specifiedspawning.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.IRule;
 import mods.thecomputerizer.specifiedspawning.rules.IRuleBuilder;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
@@ -18,7 +19,7 @@ public class RemoveRuleBuilder implements IRuleBuilder {
     private final Set<ISelector<?>> selectorSet;
 
     public RemoveRuleBuilder(Table ruleTable) {
-        this.entitySelector = (EntitySelector) SelectorType.ENTITY.makeSelector(ruleTable);
+        this.entitySelector = (EntitySelector) SelectorType.ENTITY.makeSelector(ruleTable.getTableByName("entity"));
         this.selectorSet = new HashSet<>();
         parseSelectors(ruleTable);
     }
@@ -41,7 +42,7 @@ public class RemoveRuleBuilder implements IRuleBuilder {
 
     @Override
     public IRule build() {
-        return isBasic() ? buildBasic() : buildDynamic();
+        return isBasic() ? buildBasic() : new DynamicRemove(this.entitySelector,this.selectorSet);
     }
 
     private IRule buildBasic() {
@@ -52,18 +53,12 @@ public class RemoveRuleBuilder implements IRuleBuilder {
         return new SingletonRemove(this.entitySelector,biomeSelectors);
     }
 
-    private IRule buildDynamic() {
-        Set<BiomeSelector> biomeSelectors  = new HashSet<>();
-        for(ISelector<?> selector : this.selectorSet)
-            if(selector instanceof BiomeSelector)
-                biomeSelectors.add((BiomeSelector)selector);
-        this.selectorSet.removeIf(selector -> selector instanceof BiomeSelector);
-        return new DynamicRemove(this.entitySelector,biomeSelectors,this.selectorSet);
-    }
-
     private boolean isBasic() {
-        for(ISelector<?> selector : this.selectorSet)
+        Constants.LOGGER.error("TESTING BASIC REMOVE FOR {} ENTRIES",this.selectorSet.size());
+        for(ISelector<?> selector : this.selectorSet) {
+            Constants.LOGGER.error("TESTING BASIC REMOVE {}",selector.getClass().getName());
             if(!selector.isBasic()) return false;
+        }
         return true;
     }
 }

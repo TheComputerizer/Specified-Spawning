@@ -9,6 +9,7 @@ import java.util.Objects;
 public class BiomeSelector extends ResourceSelector implements ISelector<Biome> {
 
     public static BiomeSelector makeSelector(Table table) {
+        if(Objects.isNull(table)) return null;
         return new BiomeSelector(table.getValOrDefault("mod",""),
                 table.getValOrDefault("biome",""),table.getValOrDefault("matcher",""));
     }

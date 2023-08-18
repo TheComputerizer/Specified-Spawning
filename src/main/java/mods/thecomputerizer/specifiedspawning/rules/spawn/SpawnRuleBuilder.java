@@ -41,7 +41,7 @@ public class SpawnRuleBuilder implements IRuleBuilder {
 
     @Override
     public IRule build() {
-        return isBasic() ? buildBasic() : buildDynamic();
+        return isBasic() ? buildBasic() : new DynamicSpawn(this.entitySelector,this.selectorSet);
     }
 
     private IRule buildBasic() {
@@ -50,15 +50,6 @@ public class SpawnRuleBuilder implements IRuleBuilder {
             if(selector instanceof BiomeSelector)
                 biomeSelectors.add((BiomeSelector)selector);
         return new SingletonSpawn(this.entitySelector,biomeSelectors);
-    }
-
-    private IRule buildDynamic() {
-        Set<BiomeSelector> biomeSelectors  = new HashSet<>();
-        for(ISelector<?> selector : this.selectorSet)
-            if(selector instanceof BiomeSelector)
-                biomeSelectors.add((BiomeSelector)selector);
-        this.selectorSet.removeIf(selector -> selector instanceof BiomeSelector);
-        return new DynamicSpawn(this.entitySelector,biomeSelectors,this.selectorSet);
     }
 
     private boolean isBasic() {

@@ -1,7 +1,7 @@
 package mods.thecomputerizer.specifiedspawning.rules.spawn;
 
 import mods.thecomputerizer.specifiedspawning.Constants;
-import mods.thecomputerizer.specifiedspawning.SpawnManager;
+import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.rules.SingletonRule;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;

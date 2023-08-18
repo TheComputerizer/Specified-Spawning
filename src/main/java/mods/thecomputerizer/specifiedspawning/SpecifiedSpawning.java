@@ -2,6 +2,8 @@ package mods.thecomputerizer.specifiedspawning;
 
 import mods.thecomputerizer.specifiedspawning.rules.RuleManager;
 import mods.thecomputerizer.specifiedspawning.util.EnumUtil;
+import mods.thecomputerizer.specifiedspawning.world.ReloadCommand;
+import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -33,14 +35,14 @@ public class SpecifiedSpawning {
 
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
-
+        event.registerServerCommand(new ReloadCommand());
     }
 
     public static void reload() {
         SpawnManager.clear();
         RuleManager.clear();
         RuleManager.parseConfig();
-        SpawnManager.loadDefaults();
+        SpawnManager.loadDefaultSpawnGroups();
         SpawnManager.buildSpawnGroups();
         RuleManager.buildRules();
     }

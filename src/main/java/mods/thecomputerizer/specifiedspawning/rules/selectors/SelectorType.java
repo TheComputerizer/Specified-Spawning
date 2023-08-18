@@ -9,9 +9,10 @@ public enum SelectorType {
 
     BIOME("biome",true,BiomeSelector::makeSelector),
     DIMENSION("dimension",false,DimensionSelector::makeSelector),
-    ENTITY("entity",false,EntitySelector::makeSelector),
+    ENTITY("entity",true,EntitySelector::makeSelector),
     GAMESTAGE("gamestage",true,GamestageSelector::makeSelector),
-    LIGHT("light",true,LightSelector::makeSelector);
+    LIGHT("light",true,LightSelector::makeSelector),
+    HEIGHT("height",true,HeightSelector::makeSelector);
 
 
     private final String name;

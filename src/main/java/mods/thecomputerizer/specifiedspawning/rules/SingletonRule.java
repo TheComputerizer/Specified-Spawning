@@ -4,6 +4,7 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -23,9 +24,9 @@ public abstract class SingletonRule extends AbstractRule {
 
     @Override
     public void setup() {
-        if(Objects.isNull(this.entitySelector)) this.entities = new HashSet<>();
+        if(Objects.isNull(this.entitySelector)) this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
         else this.entities = getEntities(this.entitySelector);
-        if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty()) this.biomes = new HashSet<>();
+        if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty()) this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
         else this.biomes = getBiomes(this.biomeSelectors);
     }
 

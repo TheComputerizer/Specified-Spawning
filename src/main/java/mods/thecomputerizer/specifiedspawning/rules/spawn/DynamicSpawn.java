@@ -1,9 +1,8 @@
 package mods.thecomputerizer.specifiedspawning.rules.spawn;
 
 import mods.thecomputerizer.specifiedspawning.Constants;
-import mods.thecomputerizer.specifiedspawning.SpawnManager;
+import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import net.minecraft.entity.EntityLiving;
@@ -16,8 +15,8 @@ import java.util.Set;
 
 public class DynamicSpawn extends DynamicRule {
 
-    public DynamicSpawn(EntitySelector entitySelector, Set<BiomeSelector> biomeSelectors, Set<ISelector<?>> dynamicSelectors) {
-        super(entitySelector, biomeSelectors, dynamicSelectors);
+    public DynamicSpawn(EntitySelector entitySelector, Set<ISelector<?>> dynamicSelectors) {
+        super(entitySelector, dynamicSelectors);
     }
 
     @SuppressWarnings("unchecked")
@@ -34,5 +33,10 @@ public class DynamicSpawn extends DynamicRule {
                     "currently supported!",entity.getEntityClass(), ForgeRegistries.BIOMES.getKey(biome));
         }
         return ret;
+    }
+
+    @Override
+    public boolean isRemoval() {
+        return false;
     }
 }

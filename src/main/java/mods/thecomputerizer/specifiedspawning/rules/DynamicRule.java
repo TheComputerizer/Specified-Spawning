@@ -14,15 +14,27 @@ public abstract class DynamicRule extends AbstractRule {
 
     private final EntitySelector entitySelector;
     private final Set<BiomeSelector> biomeSelectors;
-    private final Set<ISelector<?>> dynamicSelectors;
+    private final Set<DimensionSelector> dimensionSelectors;
+    private final Set<GamestageSelector> gamestageSelectors;
+    private final Set<LightSelector> lightSelectors;
+    private final Set<HeightSelector> heightSelectors;
     private Set<EntityEntry> entities;
     private Set<Biome> biomes;
-    private Set<Biome.SpawnListEntry> affectedSpawnEntries;
 
-    public DynamicRule(EntitySelector entitySelector, Set<BiomeSelector> biomeSelectors, Set<ISelector<?>> dynamicSelectors) {
+    public DynamicRule(EntitySelector entitySelector, Set<ISelector<?>> dynamicSelectors) {
         this.entitySelector = entitySelector;
-        this.biomeSelectors = biomeSelectors;
-        this.dynamicSelectors = dynamicSelectors;
+        this.biomeSelectors = new HashSet<>();
+        this.dimensionSelectors = new HashSet<>();
+        this.gamestageSelectors = new HashSet<>();
+        this.lightSelectors = new HashSet<>();
+        this.heightSelectors = new HashSet<>();
+        for(ISelector<?> selector : dynamicSelectors) {
+            if(selector instanceof BiomeSelector) this.biomeSelectors.add((BiomeSelector)selector);
+            if(selector instanceof DimensionSelector) this.dimensionSelectors.add((DimensionSelector)selector);
+            if(selector instanceof GamestageSelector) this.gamestageSelectors.add((GamestageSelector)selector);
+            if(selector instanceof LightSelector) this.lightSelectors.add((LightSelector)selector);
+            if(selector instanceof HeightSelector) this.heightSelectors.add((HeightSelector)selector);
+        }
     }
 
     @Override
@@ -33,9 +45,10 @@ public abstract class DynamicRule extends AbstractRule {
         else this.biomes = getBiomes(this.biomeSelectors);
     }
 
-    public void apply() {
-        this.affectedSpawnEntries = new HashSet<>();
-        for(Biome biome : this.biomes) this.affectedSpawnEntries.addAll(apply(biome));
+    public Set<Biome.SpawnListEntry> apply() {
+        Set<Biome.SpawnListEntry> ret = new HashSet<>();
+        for(Biome biome : this.biomes) ret.addAll(apply(biome));
+        return ret;
     }
 
     protected abstract Set<Biome.SpawnListEntry> apply(Biome biome);
@@ -52,31 +65,30 @@ public abstract class DynamicRule extends AbstractRule {
         return min ? this.entitySelector.getMinGroupSpawn() : this.entitySelector.getMaxGroupSpawn();
     }
 
-    protected Set<Biome> getBiomes() {
-        return this.biomes;
+    public boolean checkDimension(int dim) {
+        for(DimensionSelector selector : this.dimensionSelectors)
+            if(selector.isValid(dim)) return true;
+        return false;
     }
 
-    protected boolean applyDynamicSelectors(int light, int dim, World world) {
-        for(ISelector<?> selector : this.dynamicSelectors) {
-            if(selector instanceof LightSelector)
-                if(!applyLight((LightSelector)selector,light)) return false;
-            if(selector instanceof DimensionSelector)
-                if(!applyDimension((DimensionSelector)selector,dim)) return false;
-            if(selector instanceof GamestageSelector)
-                if(!applyGamestages((GamestageSelector)selector,world)) return false;
-        }
-        return true;
+    public boolean checkGamestages(World world) {
+        if(!Loader.isModLoaded("gamestages")) return true;
+        for(GamestageSelector selector : this.gamestageSelectors)
+            if(selector.isValid(world)) return true;
+        return false;
     }
 
-    protected boolean applyLight(LightSelector selector, int light) {
-        return selector.isValid(light);
+    public boolean checkLight(int light) {
+        for(LightSelector selector : this.lightSelectors)
+            if(selector.isValid(light)) return true;
+        return false;
     }
 
-    protected boolean applyDimension(DimensionSelector selector, int dim) {
-        return selector.isValid(dim);
+    public boolean checkHeight(int yPos) {
+        for(HeightSelector selector : this.heightSelectors)
+            if(selector.isValid(yPos)) return true;
+        return false;
     }
 
-    protected boolean applyGamestages(GamestageSelector selector, World world) {
-        return !Loader.isModLoaded("gamestages") || selector.isValid(world);
-    }
+    public abstract boolean isRemoval();
 }

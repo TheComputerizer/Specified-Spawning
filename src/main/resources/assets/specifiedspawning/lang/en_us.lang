@@ -1,1 +1,2 @@
-item.specifiedspawning.test.name=Test Item
+command.specifiedspawning.help=Usage: '/specifiedspawning reload'
+command.specifiedspawning.success=Reloaded rule file for Specified Spawning

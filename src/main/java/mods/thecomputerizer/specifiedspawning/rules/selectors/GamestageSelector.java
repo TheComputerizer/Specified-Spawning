@@ -7,10 +7,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Objects;
 
 public class GamestageSelector implements ISelector<World> {
 
     public static GamestageSelector makeSelector(Table table) {
+        if(Objects.isNull(table)) return null;
         return new GamestageSelector(ParsingUtils.getStringList(table.getVarMap().get("gamestage")),
                 table.getValOrDefault("isWhitelist",true),
                 table.getValOrDefault("allStages",true),

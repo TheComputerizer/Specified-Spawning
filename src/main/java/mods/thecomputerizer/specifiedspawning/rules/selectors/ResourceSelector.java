@@ -1,5 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.rules.selectors;
 
+import mods.thecomputerizer.specifiedspawning.Constants;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Objects;
@@ -13,8 +14,11 @@ public abstract class ResourceSelector {
 
     protected ResourceSelector(String mod, String regID, String matcher) {
         this.mod = mod.isEmpty() ? null : mod;
+        Constants.LOGGER.error("NICE MOD {}",this.mod);
         this.regID = regID.isEmpty() ? null : regID;
+        Constants.LOGGER.error("NICE REG {}",this.regID);
         this.matcher = matcher.isEmpty() ? null : matcher;
+        Constants.LOGGER.error("NICE MATCH {}",this.matcher);
     }
 
     protected boolean isResourceValid(ResourceLocation res) {
@@ -24,6 +28,7 @@ public abstract class ResourceSelector {
         status = calculateStatus(status,res,this.regID,res1 -> res1.toString().matches(this.regID));
         if(status==2) return true;
         status = calculateStatus(status,res,this.matcher,res1 -> res1.toString().contains(this.matcher));
+        Constants.LOGGER.error("TESTING IF {} IS A VALID RESOURCE {}",res,status);
         return status<=2;
     }
 
