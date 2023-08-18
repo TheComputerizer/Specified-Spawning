@@ -1,0 +1,39 @@
+package mods.thecomputerizer.specifiedspawning.rules;
+
+import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
+import net.minecraft.world.biome.Biome;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+public abstract class AbstractRule implements IRule {
+
+    private <V extends IForgeRegistryEntry<V>> Set<V> getRegSet(IForgeRegistry<V> reg, ISelector<V> selector) {
+        Set<V> ret = new HashSet<>();
+        for(V entry : reg.getValuesCollection())
+            if(selector.isValid(entry)) ret.add(entry);
+        return ret;
+    }
+
+    protected Set<EntityEntry> getEntities(EntitySelector selector) {
+        return getRegSet(ForgeRegistries.ENTITIES,selector);
+    }
+
+    protected Set<Biome> getBiomes(BiomeSelector selector) {
+        return getRegSet(ForgeRegistries.BIOMES,selector);
+    }
+
+    protected Set<Biome> getBiomes(Collection<BiomeSelector> selectors) {
+        Set<Biome> ret = new HashSet<>();
+        for(BiomeSelector selector : selectors)
+            ret.addAll(getBiomes(selector));
+        return ret;
+    }
+}

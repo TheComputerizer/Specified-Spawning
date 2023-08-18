@@ -1,35 +1,53 @@
 package mods.thecomputerizer.specifiedspawning.rules.selectors;
 
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.util.Objects;
 
-public class EntitySelector implements ISelector<Entity> {
+public class EntitySelector extends ResourceSelector implements ISelector<EntityEntry> {
 
     public static EntitySelector makeSelector(Table table) {
         return new EntitySelector(table.getValOrDefault("mod",""),
-                table.getValOrDefault("entity",""),table.getValOrDefault("matcher",""));
+                table.getValOrDefault("entity",""),table.getValOrDefault("matcher",""),
+                table.getValOrDefault("min_group_size",1),
+                table.getValOrDefault("max_group_size",1),table.getValOrDefault("weight",10));
     }
 
-    private final String mod;
-    private final String entityID;
-    private final String matcher;
+    private final int minGroupSpawn;
+    private final int maxGroupSpawn;
+    private final int weight;
 
-    private EntitySelector(String mod, String entityID, String matcher) {
-        this.mod = mod.isEmpty() ? null : mod;
-        this.entityID = entityID.isEmpty() ? null : entityID;
-        this.matcher = matcher.isEmpty() ? null : matcher;
+    private EntitySelector(String mod, String entityID, String matcher, int minGroupSpawn, int maxGroupSpawn, int weight) {
+        super(mod,entityID,matcher);
+        if(minGroupSpawn<=0) minGroupSpawn = 1;
+        if(maxGroupSpawn<minGroupSpawn) maxGroupSpawn = minGroupSpawn;
+        this.minGroupSpawn = minGroupSpawn;
+        this.maxGroupSpawn = maxGroupSpawn;
+        this.weight = weight;
     }
 
-    public boolean isValid(Entity entity) {
+    public int getMinGroupSpawn() {
+        return this.minGroupSpawn;
+    }
+
+    public int getMaxGroupSpawn() {
+        return maxGroupSpawn;
+    }
+
+    public int getWeight() {
+        return this.weight;
+    }
+
+    @Override
+    public boolean isValid(EntityEntry entity) {
         if(Objects.isNull(entity)) return false;
-        ResourceLocation res = EntityList.getKey(entity);
-        if(Objects.isNull(res)) return false;
-        return (Objects.isNull(this.mod) || res.getNamespace().matches(this.mod)) &&
-                (Objects.isNull(this.entityID) || res.toString().matches(this.entityID)) &&
-                (Objects.isNull(this.matcher) || res.toString().contains(this.matcher));
+        return isResourceValid(ForgeRegistries.ENTITIES.getKey(entity));
+    }
+
+    @Override
+    public boolean isBasic() {
+        return true;
     }
 }

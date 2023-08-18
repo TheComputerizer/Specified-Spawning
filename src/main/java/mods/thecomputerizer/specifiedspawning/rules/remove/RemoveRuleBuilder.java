@@ -2,6 +2,7 @@ package mods.thecomputerizer.specifiedspawning.rules.remove;
 
 import mods.thecomputerizer.specifiedspawning.rules.IRule;
 import mods.thecomputerizer.specifiedspawning.rules.IRuleBuilder;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
@@ -13,12 +14,10 @@ import java.util.Set;
 
 public class RemoveRuleBuilder implements IRuleBuilder {
 
-    private final Table ruleTable;
     private final EntitySelector entitySelector;
     private final Set<ISelector<?>> selectorSet;
 
     public RemoveRuleBuilder(Table ruleTable) {
-        this.ruleTable = ruleTable;
         this.entitySelector = (EntitySelector) SelectorType.ENTITY.makeSelector(ruleTable);
         this.selectorSet = new HashSet<>();
         parseSelectors(ruleTable);
@@ -42,6 +41,29 @@ public class RemoveRuleBuilder implements IRuleBuilder {
 
     @Override
     public IRule build() {
-        return null;
+        return isBasic() ? buildBasic() : buildDynamic();
+    }
+
+    private IRule buildBasic() {
+        Set<BiomeSelector> biomeSelectors  = new HashSet<>();
+        for(ISelector<?> selector : this.selectorSet)
+            if(selector instanceof BiomeSelector)
+                biomeSelectors.add((BiomeSelector)selector);
+        return new SingletonRemove(this.entitySelector,biomeSelectors);
+    }
+
+    private IRule buildDynamic() {
+        Set<BiomeSelector> biomeSelectors  = new HashSet<>();
+        for(ISelector<?> selector : this.selectorSet)
+            if(selector instanceof BiomeSelector)
+                biomeSelectors.add((BiomeSelector)selector);
+        this.selectorSet.removeIf(selector -> selector instanceof BiomeSelector);
+        return new DynamicRemove(this.entitySelector,biomeSelectors,this.selectorSet);
+    }
+
+    private boolean isBasic() {
+        for(ISelector<?> selector : this.selectorSet)
+            if(!selector.isBasic()) return false;
+        return true;
     }
 }

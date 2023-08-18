@@ -1,11 +1,11 @@
-package mods.thecomputerizer.specifiedspawning.rules;
+package mods.thecomputerizer.specifiedspawning.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-public class ParseUtil {
+/**
+ * Various utility methods for parsing rules
+ */
+public class ParsingUtils {
 
     @SuppressWarnings("unchecked")
     public static List<String> getStringList(Object var) {

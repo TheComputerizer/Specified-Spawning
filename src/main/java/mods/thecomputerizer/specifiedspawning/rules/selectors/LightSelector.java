@@ -16,7 +16,15 @@ public class LightSelector implements ISelector<Integer> {
         this.max = max;
     }
 
+    @Override
     public boolean isValid(Integer level) {
         return level>=this.min && level<=this.max;
+    }
+
+
+
+    @Override
+    public boolean isBasic() {
+        return false;
     }
 }

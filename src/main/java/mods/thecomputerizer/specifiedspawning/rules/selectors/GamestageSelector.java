@@ -1,6 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.rules.selectors;
 
-import mods.thecomputerizer.specifiedspawning.rules.ParseUtil;
+import mods.thecomputerizer.specifiedspawning.util.ParsingUtils;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.darkhax.gamestages.GameStageHelper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,7 +11,7 @@ import java.util.List;
 public class GamestageSelector implements ISelector<World> {
 
     public static GamestageSelector makeSelector(Table table) {
-        return new GamestageSelector(ParseUtil.getStringList(table.getVarMap().get("gamestage")),
+        return new GamestageSelector(ParsingUtils.getStringList(table.getVarMap().get("gamestage")),
                 table.getValOrDefault("isWhitelist",true),
                 table.getValOrDefault("allStages",true),
                 table.getValOrDefault("allPlayers",false));
@@ -29,6 +29,7 @@ public class GamestageSelector implements ISelector<World> {
         this.allPlayers = allPlayers;
     }
 
+    @Override
     public boolean isValid(World world) {
         List<EntityPlayer> players = world.playerEntities;
         if(players.isEmpty()) return false;
@@ -46,5 +47,12 @@ public class GamestageSelector implements ISelector<World> {
                     !GameStageHelper.hasAnyOf(player,this.stageNames);
         boolean hasAny = GameStageHelper.hasAnyOf(player,this.stageNames);
         return this.isWhitelist == hasAny;
+    }
+
+
+
+    @Override
+    public boolean isBasic() {
+        return false;
     }
 }
