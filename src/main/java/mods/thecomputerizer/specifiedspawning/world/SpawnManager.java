@@ -1,12 +1,9 @@
 package mods.thecomputerizer.specifiedspawning.world;
 
-import mods.thecomputerizer.specifiedspawning.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.util.ThreadSafety;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
@@ -23,9 +20,9 @@ public class SpawnManager {
         for(Biome biome : ForgeRegistries.BIOMES.getValuesCollection()) {
             DEFAULT_SPAWN_ENTRIES.putIfAbsent(biome,new HashMap<>());
             for(EnumCreatureType creatureType : EnumCreatureType.values()) {
-                DEFAULT_SPAWN_ENTRIES.get(biome).put(creatureType, biome.getSpawnableList(creatureType));
-                Constants.LOGGER.error("ADDED ENUM TYPE {} with {} ENTRIES TO BIOME {}",creatureType,
-                        biome.getSpawnableList(creatureType).size(),biome.getRegistryName());
+                DEFAULT_SPAWN_ENTRIES.get(biome).put(creatureType,new ArrayList<>());
+                for(Biome.SpawnListEntry entry : biome.getSpawnableList(creatureType))
+                    DEFAULT_SPAWN_ENTRIES.get(biome).get(creatureType).add(entry);
             }
         }
     }
@@ -55,13 +52,11 @@ public class SpawnManager {
     public static void clear() {
         for(Map.Entry<Biome,Map<EnumCreatureType,List<Biome.SpawnListEntry>>> biomeEntry : DEFAULT_SPAWN_ENTRIES.entrySet()) {
             Biome biome = biomeEntry.getKey();
-            Constants.LOGGER.error("RESETTING BIOME {}",biome.getRegistryName());
             for(Map.Entry<EnumCreatureType,List<Biome.SpawnListEntry>> creatureTypeEntry : biomeEntry.getValue().entrySet()) {
                 EnumCreatureType type = creatureTypeEntry.getKey();
                 List<Biome.SpawnListEntry> spawnEntries = creatureTypeEntry.getValue();
-                Constants.LOGGER.error("DEFAULT TYPE {} HAD {} ENTRIES",type,spawnEntries.size());
-                //biome.getSpawnableList(type).clear();
-                //biome.getSpawnableList(type).addAll(spawnEntries);
+                biome.getSpawnableList(type).clear();
+                biome.getSpawnableList(type).addAll(spawnEntries);
             }
         }
         SPAWN_GROUPS.clear();

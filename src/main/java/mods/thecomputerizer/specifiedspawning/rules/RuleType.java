@@ -38,6 +38,10 @@ public enum RuleType {
         this.typeBuilder = typeBuilder;
     }
 
+    public String getRuleName() {
+        return this.ruleName;
+    }
+
     public IRuleBuilder parseRuleBuilder(Table table) {
         return this.typeBuilder.apply(table);
     }

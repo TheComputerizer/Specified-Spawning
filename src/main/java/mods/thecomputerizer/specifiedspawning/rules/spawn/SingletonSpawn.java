@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.util.Set;
 
-public class SingletonSpawn extends SingletonRule {
+public class SingletonSpawn extends SingletonRule implements ISpawnRule {
 
     public SingletonSpawn(EntitySelector entitySelector, Set<BiomeSelector> biomeSelectors) {
         super(entitySelector, biomeSelectors);

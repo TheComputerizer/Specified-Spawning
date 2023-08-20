@@ -1,7 +1,10 @@
 package mods.thecomputerizer.specifiedspawning.rules.selectors;
 
+import mods.thecomputerizer.specifiedspawning.Constants;
 import mods.thecomputerizer.specifiedspawning.util.ParsingUtils;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.util.TextUtil;
+import org.apache.logging.log4j.Level;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,10 +21,12 @@ public class DimensionSelector implements ISelector<Integer> {
 
     private DimensionSelector(List<Integer> dimensions) {
         this.validDimensions = dimensions;
+        Constants.logVerbose(Level.DEBUG,"Instantiated new dimension selector with valid dimensions {}",
+                TextUtil.arrayToString(" ",dimensions.toArray()));
     }
 
     @Override
-    public boolean isValid(Integer spawnDim) {
+    public boolean isValid(Integer spawnDim, String ruleDescriptor) {
         for(int dim : this.validDimensions)
             if(spawnDim==dim) return true;
         return false;

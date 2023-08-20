@@ -1,46 +1,47 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
+import mods.thecomputerizer.specifiedspawning.ConfigManager;
 import mods.thecomputerizer.specifiedspawning.Constants;
 import mods.thecomputerizer.specifiedspawning.util.ThreadSafety;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
-import mods.thecomputerizer.theimpossiblelibrary.util.file.TomlUtil;
 import net.minecraft.world.biome.Biome;
+import org.apache.logging.log4j.Level;
 
-import java.io.IOException;
 import java.util.*;
 
 public class RuleManager {
     public static final Map<RuleType,HashSet<IRuleBuilder>> RULE_BUILDERS = ThreadSafety.newMap(HashMap::new);
     public static final Map<Biome.SpawnListEntry,Set<DynamicRule>> DYNAMIC_RULE_MAP = ThreadSafety.newMap(HashMap::new);
 
-    public static void parseConfig() {
-        try {
-            for (Table table : TomlUtil.readFully(Constants.CONFIG).getTables().values()) {
-                String ruleName = table.getName();
-                if (RuleType.isBaseRule(ruleName)) {
-                    RuleType type = RuleType.getRuleType(ruleName);
-                    Constants.LOGGER.error("ADDING RULE TYPE {}",type.name());
+    public static void parseRuleTables() {
+        for (Table table : ConfigManager.INSTANCE.getTables()) {
+            String ruleName = table.getName();
+            if (RuleType.isBaseRule(ruleName)) {
+                RuleType type = RuleType.getRuleType(ruleName);
+                if(!RULE_BUILDERS.containsKey(type)) {
+                    Constants.logVerbose(Level.INFO, "Adding new rule type {}", type.name());
                     RULE_BUILDERS.putIfAbsent(type, new HashSet<>());
-                    RULE_BUILDERS.get(type).add(type.parseRuleBuilder(table));
                 }
+                RULE_BUILDERS.get(type).add(type.parseRuleBuilder(table));
             }
-        } catch (IOException ex) {
-            Constants.LOGGER.error("Failed to parse config file at {}!",Constants.CONFIG.getPath(),ex);
         }
     }
 
     public static void buildRules() {
-        Constants.LOGGER.error("BUILDING RULES");
-        for(HashSet<IRuleBuilder> builderSet : RULE_BUILDERS.values()) {
-            for (IRuleBuilder builder : builderSet) {
-                Constants.LOGGER.error("BUILDING RULE {}",builder.getClass().getName());
+        Constants.logVerbose(Level.INFO,"Building rules from {} known types",RULE_BUILDERS.size());
+        for(Map.Entry<RuleType,HashSet<IRuleBuilder>> typeEntry : RULE_BUILDERS.entrySet()) {
+            String ruleName = typeEntry.getKey().getRuleName();
+            HashSet<IRuleBuilder> builders = typeEntry.getValue();
+            Constants.logVerbose(Level.INFO,"Building {} rules from rule type '{}'",builders.size(),ruleName);
+            for (IRuleBuilder builder : builders) {
                 IRule rule = builder.build();
-                Constants.LOGGER.error("BUILT RULE {}",rule.getClass().getName());
                 rule.setup();
                 if(rule instanceof SingletonRule) ((SingletonRule)rule).apply();
                 else if(rule instanceof DynamicRule) {
                     DynamicRule dynamic = ((DynamicRule)rule);
-                    for(Biome.SpawnListEntry entry : dynamic.apply()) {
+                    Set<Biome.SpawnListEntry> entries = dynamic.apply();
+                    Constants.logVerbose(Level.DEBUG,"Assigning {} rule to {} spawn entries",dynamic.ruleDescriptor,entries.size());
+                    for(Biome.SpawnListEntry entry : entries) {
                         DYNAMIC_RULE_MAP.putIfAbsent(entry,new HashSet<>());
                         DYNAMIC_RULE_MAP.get(entry).add(dynamic);
                     }

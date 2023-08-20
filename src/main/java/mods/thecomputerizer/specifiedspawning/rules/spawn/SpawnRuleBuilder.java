@@ -18,7 +18,7 @@ public class SpawnRuleBuilder implements IRuleBuilder {
     private final Set<ISelector<?>> selectorSet;
 
     public SpawnRuleBuilder(Table ruleTable) {
-        this.entitySelector = (EntitySelector) SelectorType.ENTITY.makeSelector(ruleTable);
+        this.entitySelector = (EntitySelector) SelectorType.ENTITY.makeSelector(ruleTable.getTableByName("entity"));
         this.selectorSet = new HashSet<>();
         parseSelectors(ruleTable);
     }

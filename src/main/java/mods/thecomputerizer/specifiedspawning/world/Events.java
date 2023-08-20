@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Mod.EventBusSubscriber(modid= Constants.MODID)
 public class Events {
 
-    //@SubscribeEvent
+    @SubscribeEvent
     public static void onGetPotentialSpawns(WorldEvent.PotentialSpawns ev) {
         if(ev.getWorld() instanceof WorldServer) {
             WorldServer world = (WorldServer)ev.getWorld();
@@ -22,8 +22,11 @@ public class Events {
                 if(!RuleManager.hasCachedRules(entry)) return false;
                 boolean ret = false;
                 for(DynamicRule rule : RuleManager.getCachedRules(entry)) {
-                    if(rule.checkDimension(dimension) && rule.checkGamestages(world) && rule.checkHeight(yPos) &&
-                            rule.checkLight(light)) return rule.isRemoval();
+                    boolean isDim = rule.checkDimension(dimension);
+                    boolean isStage = rule.checkGamestages(world);
+                    boolean isHeight = rule.checkHeight(yPos);
+                    boolean isLight = rule.checkLight(light);
+                    if(isDim && isStage && isHeight && isLight) return rule.isRemoval();
                     else ret = !rule.isRemoval();
                 }
                 return ret;

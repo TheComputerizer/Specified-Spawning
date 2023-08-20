@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DynamicRemove extends DynamicRule {
+public class DynamicRemove extends DynamicRule implements IRemoveRule {
 
     public DynamicRemove(EntitySelector entitySelector, Set<ISelector<?>> dynamicSelectors) {
         super(entitySelector, dynamicSelectors);

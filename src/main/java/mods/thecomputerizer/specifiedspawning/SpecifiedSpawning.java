@@ -15,11 +15,12 @@ public class SpecifiedSpawning {
 
     public SpecifiedSpawning() {
         EnumUtil.buildDefaultConstructorTypes();
+        ConfigManager.loadInstance();
     }
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        RuleManager.parseConfig();
+        RuleManager.parseRuleTables();
     }
 
     @Mod.EventHandler
@@ -41,7 +42,8 @@ public class SpecifiedSpawning {
     public static void reload() {
         SpawnManager.clear();
         RuleManager.clear();
-        RuleManager.parseConfig();
+        ConfigManager.loadInstance();
+        RuleManager.parseRuleTables();
         SpawnManager.loadDefaultSpawnGroups();
         SpawnManager.buildSpawnGroups();
         RuleManager.buildRules();

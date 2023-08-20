@@ -1,10 +1,13 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
+import mods.thecomputerizer.specifiedspawning.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.*;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import org.apache.logging.log4j.Level;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -39,9 +42,11 @@ public abstract class DynamicRule extends AbstractRule {
 
     @Override
     public void setup() {
-        if(Objects.isNull(this.entitySelector)) this.entities = new HashSet<>();
+        setRuleDescriptor();
+        Constants.logVerbose(Level.INFO,"Setting up {} rule",this.ruleDescriptor);
+        if(Objects.isNull(this.entitySelector)) this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
         else this.entities = getEntities(this.entitySelector);
-        if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty()) this.biomes = new HashSet<>();
+        if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty()) this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
         else this.biomes = getBiomes(this.biomeSelectors);
     }
 
@@ -66,27 +71,30 @@ public abstract class DynamicRule extends AbstractRule {
     }
 
     public boolean checkDimension(int dim) {
+        if(this.dimensionSelectors.isEmpty()) return true;
         for(DimensionSelector selector : this.dimensionSelectors)
-            if(selector.isValid(dim)) return true;
+            if(selector.isValid(dim,this.ruleDescriptor)) return true;
         return false;
     }
 
     public boolean checkGamestages(World world) {
-        if(!Loader.isModLoaded("gamestages")) return true;
+        if(!Loader.isModLoaded("gamestages") || this.gamestageSelectors.isEmpty()) return true;
         for(GamestageSelector selector : this.gamestageSelectors)
-            if(selector.isValid(world)) return true;
+            if(selector.isValid(world,this.ruleDescriptor)) return true;
         return false;
     }
 
     public boolean checkLight(int light) {
+        if(this.lightSelectors.isEmpty()) return true;
         for(LightSelector selector : this.lightSelectors)
-            if(selector.isValid(light)) return true;
+            if(selector.isValid(light,this.ruleDescriptor)) return true;
         return false;
     }
 
     public boolean checkHeight(int yPos) {
+        if(this.heightSelectors.isEmpty()) return true;
         for(HeightSelector selector : this.heightSelectors)
-            if(selector.isValid(yPos)) return true;
+            if(selector.isValid(yPos,this.ruleDescriptor)) return true;
         return false;
     }
 

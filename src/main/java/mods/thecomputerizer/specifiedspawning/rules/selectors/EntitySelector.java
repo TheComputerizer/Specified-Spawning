@@ -4,6 +4,7 @@ import mods.thecomputerizer.specifiedspawning.Constants;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import org.apache.logging.log4j.Level;
 
 import java.util.Objects;
 
@@ -11,6 +12,7 @@ public class EntitySelector extends ResourceSelector implements ISelector<Entity
 
     public static EntitySelector makeSelector(Table table) {
         if(Objects.isNull(table)) return null;
+        Constants.logVerbose(Level.DEBUG,"Making entity selector from table {}",table.getName());
         return new EntitySelector(table.getValOrDefault("mod",""),
                 table.getValOrDefault("entity",""),table.getValOrDefault("matcher",""),
                 table.getValOrDefault("min_group_size",1),
@@ -43,11 +45,9 @@ public class EntitySelector extends ResourceSelector implements ISelector<Entity
     }
 
     @Override
-    public boolean isValid(EntityEntry entity) {
-        Constants.LOGGER.error("IS ENTITY NULL {}",Objects.isNull(entity));
+    public boolean isValid(EntityEntry entity, String ruleDescriptor) {
         if(Objects.isNull(entity)) return false;
-        Constants.LOGGER.error("IS ENTITY VALID FOR SELECTOR {}",entity.getEntityClass().getName());
-        return isResourceValid(ForgeRegistries.ENTITIES.getKey(entity));
+        return isResourceValid(ForgeRegistries.ENTITIES.getKey(entity),"entity",ruleDescriptor);
     }
 
     @Override

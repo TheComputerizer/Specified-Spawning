@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DynamicSpawn extends DynamicRule {
+public class DynamicSpawn extends DynamicRule implements ISpawnRule {
 
     public DynamicSpawn(EntitySelector entitySelector, Set<ISelector<?>> dynamicSelectors) {
         super(entitySelector, dynamicSelectors);

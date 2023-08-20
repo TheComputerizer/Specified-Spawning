@@ -1,5 +1,8 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
+import mods.thecomputerizer.specifiedspawning.rules.group.IGroupRule;
+import mods.thecomputerizer.specifiedspawning.rules.modify.IModifyRule;
+import mods.thecomputerizer.specifiedspawning.rules.remove.IRemoveRule;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
@@ -15,10 +18,22 @@ import java.util.Set;
 
 public abstract class AbstractRule implements IRule {
 
+    protected String ruleDescriptor;
+
+    protected void setRuleDescriptor() {
+        String singleton = this instanceof SingletonRule ? "singleton" : "dynamic";
+        String type;
+        if(this instanceof IGroupRule) type = "group";
+        else if(this instanceof IModifyRule) type = "modify";
+        else if(this instanceof IRemoveRule) type = "remove";
+        else type = "spawn";
+        this.ruleDescriptor = singleton+"-"+type;
+    }
+
     private <V extends IForgeRegistryEntry<V>> Set<V> getRegSet(IForgeRegistry<V> reg, ISelector<V> selector) {
         Set<V> ret = new HashSet<>();
         for(V entry : reg.getValuesCollection())
-            if(selector.isValid(entry)) ret.add(entry);
+            if(selector.isValid(entry,this.ruleDescriptor)) ret.add(entry);
         return ret;
     }
 

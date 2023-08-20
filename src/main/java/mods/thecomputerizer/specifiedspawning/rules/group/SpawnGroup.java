@@ -8,14 +8,22 @@ import net.minecraft.block.material.Material;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.passive.EntityWaterMob;
 
-public class SpawnGroup implements IRule {
+public class SpawnGroup implements IRule,IGroupRule {
 
     private final EnumCreatureType type;
+    private final int count;
     private final int weight;
+    private final boolean isPeaceful;
+    private final boolean isAnimal;
+    private final boolean isAquatic;
 
-    private SpawnGroup(EnumCreatureType type, int weight) {
+    private SpawnGroup(EnumCreatureType type, int count, int weight, boolean peaceful, boolean animal, boolean aquatic) {
         this.type = type;
+        this.count = count;
         this.weight = weight;
+        this.isPeaceful = peaceful;
+        this.isAnimal = animal;
+        this.isAquatic = aquatic;
     }
 
     public EnumCreatureType getType() {
@@ -23,11 +31,27 @@ public class SpawnGroup implements IRule {
     }
 
     public int getCount() {
-        return this.type.getMaxNumberOfCreature();
+        return this.count;
     }
 
     public int getWeight() {
         return weight;
+    }
+
+    public boolean isPeaceful() {
+        return isPeaceful;
+    }
+
+    public boolean isAnimal() {
+        return isAnimal;
+    }
+
+    public boolean isAquatic() {
+        return isAquatic;
+    }
+
+    public Material getSpawnMaterial() {
+        return this.isAquatic ? Material.WATER : Material.AIR;
     }
 
     @Override
@@ -39,11 +63,11 @@ public class SpawnGroup implements IRule {
 
         private final String name;
         private final EnumCreatureType creatureType;
-        private int count;
-        private int weight;
-        private boolean isPeaceful;
-        private boolean isAnimal;
-        private boolean isAquatic;
+        private final int count;
+        private final int weight;
+        private final boolean isPeaceful;
+        private final boolean isAnimal;
+        private final boolean isAquatic;
 
         public Builder(Table table) {
             this.name = table.getValOrDefault("name","hostile");
@@ -71,7 +95,11 @@ public class SpawnGroup implements IRule {
         public Builder(String name, EnumCreatureType type) {
             this.name = name;
             this.creatureType = type;
-            this.weight = 100-type.getMaxNumberOfCreature();
+            this.count = this.creatureType.getMaxNumberOfCreature();
+            this.weight = 100-this.count;
+            this.isPeaceful = this.creatureType.getPeacefulCreature();
+            this.isAnimal = this.creatureType.getAnimal();
+            this.isAquatic = EntityWaterMob.class.isAssignableFrom(this.creatureType.getCreatureClass());
         }
 
         public String getName() {
@@ -79,7 +107,7 @@ public class SpawnGroup implements IRule {
         }
 
         public SpawnGroup build() {
-            return new SpawnGroup(this.creatureType,this.weight);
+            return new SpawnGroup(this.creatureType,this.count,this.weight,this.isPeaceful,this.isAnimal,this.isAquatic);
         }
     }
 }

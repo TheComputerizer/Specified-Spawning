@@ -121,11 +121,11 @@ public class EnumUtil {
      */
     public static <E extends Enum<E>> boolean hasEnumField(Class<E> enumClass, String declaredName) {
         if(Objects.isNull(enumClass)) {
-            Constants.LOGGER.error("Unable check enum constant '{}' name for null class",declaredName);
+            Constants.LOGGER.error("Unable to check enum constant '{}' for null class",declaredName);
             return false;
         }
         if(Objects.isNull(declaredName) || declaredName.isEmpty()) {
-            Constants.LOGGER.error("Unable check null or empty enum constant name for class '{}'",enumClass.getName());
+            Constants.LOGGER.error("Unable to check null or empty enum constant name for class '{}'",enumClass.getName());
             return false;
         }
         return EnumUtils.isValidEnum(enumClass,declaredName);

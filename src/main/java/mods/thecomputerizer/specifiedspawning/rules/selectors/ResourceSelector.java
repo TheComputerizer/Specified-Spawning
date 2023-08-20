@@ -2,6 +2,7 @@ package mods.thecomputerizer.specifiedspawning.rules.selectors;
 
 import mods.thecomputerizer.specifiedspawning.Constants;
 import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -14,22 +15,25 @@ public abstract class ResourceSelector {
 
     protected ResourceSelector(String mod, String regID, String matcher) {
         this.mod = mod.isEmpty() ? null : mod;
-        Constants.LOGGER.error("NICE MOD {}",this.mod);
         this.regID = regID.isEmpty() ? null : regID;
-        Constants.LOGGER.error("NICE REG {}",this.regID);
         this.matcher = matcher.isEmpty() ? null : matcher;
-        Constants.LOGGER.error("NICE MATCH {}",this.matcher);
+        Constants.logVerbose(Level.DEBUG,"Instantiated new Resource Selector with mod '{}', registry id '{}', and " +
+                "matcher '{}'",this.mod,this.regID,this.matcher);
     }
 
-    protected boolean isResourceValid(ResourceLocation res) {
+    protected boolean isResourceValid(ResourceLocation res, String fromType, String ruleDescriptor) {
         if(Objects.isNull(res)) return false;
         int status = calculateStatus(1,res,this.mod,res1 -> res1.getNamespace().matches(this.mod));
-        if(status==2) return true;
+        if(status==2) return logValid(true,res,fromType,ruleDescriptor);
         status = calculateStatus(status,res,this.regID,res1 -> res1.toString().matches(this.regID));
-        if(status==2) return true;
+        if(status==2) return logValid(true,res,fromType,ruleDescriptor);
         status = calculateStatus(status,res,this.matcher,res1 -> res1.toString().contains(this.matcher));
-        Constants.LOGGER.error("TESTING IF {} IS A VALID RESOURCE {}",res,status);
-        return status<=2;
+        return logValid(status<=2,res,fromType,ruleDescriptor);
+    }
+
+    private boolean logValid(boolean result, ResourceLocation res, String fromType, String ruleDescriptor) {
+        if(result) Constants.logVerbose(Level.INFO,"Verified {} with id {} for a {} rule",fromType,res,ruleDescriptor);
+        return result;
     }
 
     private int calculateStatus(int prev,ResourceLocation res,String type,Function<ResourceLocation,Boolean> func) {

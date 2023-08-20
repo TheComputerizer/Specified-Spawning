@@ -19,9 +19,9 @@ public class BiomeSelector extends ResourceSelector implements ISelector<Biome> 
     }
 
     @Override
-    public boolean isValid(Biome biome) {
+    public boolean isValid(Biome biome, String ruleDescriptor) {
         if(Objects.isNull(biome)) return false;
-        return isResourceValid(ForgeRegistries.BIOMES.getKey(biome));
+        return isResourceValid(ForgeRegistries.BIOMES.getKey(biome),"biome",ruleDescriptor);
     }
 
     @Override

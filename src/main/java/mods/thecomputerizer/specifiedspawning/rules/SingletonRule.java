@@ -1,10 +1,12 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
+import mods.thecomputerizer.specifiedspawning.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import org.apache.logging.log4j.Level;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -24,6 +26,8 @@ public abstract class SingletonRule extends AbstractRule {
 
     @Override
     public void setup() {
+        setRuleDescriptor();
+        Constants.logVerbose(Level.INFO,"Setting up {} rule",this.ruleDescriptor);
         if(Objects.isNull(this.entitySelector)) this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
         else this.entities = getEntities(this.entitySelector);
         if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty()) this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
@@ -46,9 +50,5 @@ public abstract class SingletonRule extends AbstractRule {
 
     protected int getEntitySpawnCount(boolean min) {
         return min ? this.entitySelector.getMinGroupSpawn() : this.entitySelector.getMaxGroupSpawn();
-    }
-
-    protected Set<Biome> getBiomes() {
-        return this.biomes;
     }
 }
