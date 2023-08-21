@@ -7,8 +7,9 @@ import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.passive.EntityWaterMob;
+import net.minecraft.entity.passive.IAnimals;
 
-public class SpawnGroup implements IRule,IGroupRule {
+public class SpawnGroup implements IRule, IGroupRule {
 
     private final EnumCreatureType type;
     private final int count;
@@ -84,7 +85,7 @@ public class SpawnGroup implements IRule,IGroupRule {
                 this.isPeaceful = table.getValOrDefault("peaceful",false);
                 this.isAnimal = table.getValOrDefault("animal",false);
                 this.isAquatic = table.getValOrDefault("aquatic",false);
-                this.creatureType = EnumUtil.makeNewEnumCreatureType(this.name,null,this.count,
+                this.creatureType = EnumUtil.makeNewEnumCreatureType(this.name,IAnimals.class,this.count,
                         this.isAquatic ? Material.WATER : Material.AIR,this.isPeaceful,this.isAnimal);
             }
         }

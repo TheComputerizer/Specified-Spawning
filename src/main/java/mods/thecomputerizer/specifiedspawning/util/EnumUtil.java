@@ -1,15 +1,13 @@
 package mods.thecomputerizer.specifiedspawning.util;
 
-import mods.thecomputerizer.specifiedspawning.Constants;
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.passive.IAnimals;
 import net.minecraftforge.common.util.EnumHelper;
 import org.apache.commons.lang3.EnumUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Various utility methods for adding, modifying, and checking enums
@@ -20,10 +18,10 @@ public class EnumUtil {
     private static final Map<String,EnumCreatureType> ENUM_REFERENCE_MAP = ThreadSafety.newMap(HashMap::new);
 
     public static void buildDefaultConstructorTypes() {
-        addCachedConstructor(EnumCreatureType.class,Class.class,Integer.class,Material.class,Boolean.class,Boolean.class);
     }
 
     public static <E extends Enum<E>> void addCachedConstructor(Class<E> enumClass, Class<?> ... constructorParameterTypes) {
+        EnumHelper.testEnum(enumClass,constructorParameterTypes);
         ENUM_CONSTRUCTOR_TYPES.put(enumClass,constructorParameterTypes);
     }
 
@@ -64,7 +62,7 @@ public class EnumUtil {
     }
 
     private static EnumCreatureType makeDefaultEnumCreatureType(String name) {
-        return makeNewEnumCreatureType(name,null,20,Material.AIR,false,false);
+        return makeNewEnumCreatureType(name, IAnimals.class,20,Material.AIR,false,false);
     }
 
     /**
@@ -78,7 +76,7 @@ public class EnumUtil {
         EnumCreatureType ret;
         if(hasEnumField(EnumCreatureType.class,name))
             ret =  EnumUtils.getEnum(EnumCreatureType.class,name);
-        else ret = addEnumFromCache(EnumCreatureType.class,name,animalType,count,spawnMaterial,isPeaceful,isAnimal);
+        else ret = EnumHelper.addCreatureType(name,animalType,count,spawnMaterial,isPeaceful,isAnimal);
         if(Objects.nonNull(ret)) ENUM_REFERENCE_MAP.put(name,ret);
         return ret;
     }
@@ -105,8 +103,9 @@ public class EnumUtil {
         }
         for(int i=0;i<parameters.length;i++) {
             Class<?> type = parameterTypes[i];
-            Class<?> input = parameters[i].getClass();
-            if(!type.isAssignableFrom(input)) {
+            Object parameter = parameters[i];
+            Class<?> input = Objects.nonNull(parameter) ? parameter.getClass() : null;
+            if(Objects.nonNull(input) && !type.isAssignableFrom(input)) {
                 Constants.LOGGER.error("Failed to add constant {} for enum class {}! Input parameter at index" +
                                 " {} of type {} is not extensible from the expected type {}!",enumConstant,
                         enumClass.getName(),i,input.getName(),type.getName());

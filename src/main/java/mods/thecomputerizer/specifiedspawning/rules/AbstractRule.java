@@ -1,11 +1,13 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
 import mods.thecomputerizer.specifiedspawning.rules.group.IGroupRule;
+import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.rules.modify.IModifyRule;
 import mods.thecomputerizer.specifiedspawning.rules.remove.IRemoveRule;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
+import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -19,6 +21,19 @@ import java.util.Set;
 public abstract class AbstractRule implements IRule {
 
     protected String ruleDescriptor;
+    private final String groupName;
+
+    protected AbstractRule(String groupName) {
+        this.groupName = groupName;
+    }
+
+    protected String getGroupName() {
+        return this.groupName;
+    }
+
+    public SpawnGroup getSpawnGroup() {
+        return SpawnManager.getSpawnGroup(this.groupName);
+    }
 
     protected void setRuleDescriptor() {
         String singleton = this instanceof SingletonRule ? "singleton" : "dynamic";
@@ -39,6 +54,13 @@ public abstract class AbstractRule implements IRule {
 
     protected Set<EntityEntry> getEntities(EntitySelector selector) {
         return getRegSet(ForgeRegistries.ENTITIES,selector);
+    }
+
+    protected Set<EntityEntry> getEntities(Collection<EntitySelector> selectors) {
+        Set<EntityEntry> ret = new HashSet<>();
+        for(EntitySelector selector : selectors)
+            ret.addAll(getEntities(selector));
+        return ret;
     }
 
     protected Set<Biome> getBiomes(BiomeSelector selector) {

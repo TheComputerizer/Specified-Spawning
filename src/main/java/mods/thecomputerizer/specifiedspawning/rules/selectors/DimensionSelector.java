@@ -1,6 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.rules.selectors;
 
-import mods.thecomputerizer.specifiedspawning.Constants;
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.util.ParsingUtils;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import mods.thecomputerizer.theimpossiblelibrary.util.TextUtil;

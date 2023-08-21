@@ -1,6 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
-import mods.thecomputerizer.specifiedspawning.Constants;
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.*;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -10,12 +10,13 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.logging.log4j.Level;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 public abstract class DynamicRule extends AbstractRule {
 
-    private final EntitySelector entitySelector;
+    private final List<EntitySelector> entitySelectors;
     private final Set<BiomeSelector> biomeSelectors;
     private final Set<DimensionSelector> dimensionSelectors;
     private final Set<GamestageSelector> gamestageSelectors;
@@ -24,8 +25,9 @@ public abstract class DynamicRule extends AbstractRule {
     private Set<EntityEntry> entities;
     private Set<Biome> biomes;
 
-    public DynamicRule(EntitySelector entitySelector, Set<ISelector<?>> dynamicSelectors) {
-        this.entitySelector = entitySelector;
+    public DynamicRule(String groupName, List<EntitySelector> entitySelectors, Set<ISelector<?>> dynamicSelectors) {
+        super(groupName);
+        this.entitySelectors = entitySelectors;
         this.biomeSelectors = new HashSet<>();
         this.dimensionSelectors = new HashSet<>();
         this.gamestageSelectors = new HashSet<>();
@@ -44,9 +46,11 @@ public abstract class DynamicRule extends AbstractRule {
     public void setup() {
         setRuleDescriptor();
         Constants.logVerbose(Level.INFO,"Setting up {} rule",this.ruleDescriptor);
-        if(Objects.isNull(this.entitySelector)) this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
-        else this.entities = getEntities(this.entitySelector);
-        if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty()) this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
+        if(Objects.isNull(this.entitySelectors) || this.entitySelectors.isEmpty())
+            this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
+        else this.entities = getEntities(this.entitySelectors);
+        if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty())
+            this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
         else this.biomes = getBiomes(this.biomeSelectors);
     }
 
@@ -63,11 +67,11 @@ public abstract class DynamicRule extends AbstractRule {
     }
 
     protected int getEntityWeight() {
-        return this.entitySelector.getWeight();
+        return this.entitySelectors.get(0).getWeight();
     }
 
     protected int getEntitySpawnCount(boolean min) {
-        return min ? this.entitySelector.getMinGroupSpawn() : this.entitySelector.getMaxGroupSpawn();
+        return min ? this.entitySelectors.get(0).getMinGroupSpawn() : this.entitySelectors.get(0).getMaxGroupSpawn();
     }
 
     public boolean checkDimension(int dim) {

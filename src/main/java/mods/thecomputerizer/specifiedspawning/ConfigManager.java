@@ -1,5 +1,6 @@
 package mods.thecomputerizer.specifiedspawning;
 
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Holder;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.TomlPart;
@@ -14,6 +15,8 @@ import java.util.Collection;
 import java.util.List;
 
 public class ConfigManager {
+
+    public static final File CONFIG = getOrMakeConfigFile();
 
     public static File getOrMakeConfigFile() {
         String path = "config/"+Constants.MODID+".toml";
@@ -39,9 +42,9 @@ public class ConfigManager {
 
     public static void loadInstance() {
         try {
-            INSTANCE = new ConfigManager(TomlUtil.readFully(Constants.CONFIG));
+            INSTANCE = new ConfigManager(TomlUtil.readFully(CONFIG));
             if(INSTANCE.moreLogging) {
-                Constants.LOGGER.info("Parsing config file at {}",Constants.CONFIG.getPath());
+                Constants.LOGGER.info("Parsing config file at {}", CONFIG.getPath());
                 int lineNum = 1;
                 for (String line : INSTANCE.parsedConfig.toLines(TomlPart.COMMENT, TomlPart.BLANK_LINE)) {
                     Constants.logVerbose(Level.DEBUG, "Parsed config line [{}]: '{}'", lineNum, line);
@@ -49,7 +52,7 @@ public class ConfigManager {
                 }
             }
         } catch (IOException ex) {
-            Constants.LOGGER.error("Failed to parse config file at {}!",Constants.CONFIG.getPath(),ex);
+            Constants.LOGGER.error("Failed to parse config file at {}!", CONFIG.getPath(),ex);
         }
     }
 

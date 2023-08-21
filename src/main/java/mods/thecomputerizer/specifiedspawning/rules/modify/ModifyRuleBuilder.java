@@ -7,19 +7,21 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class ModifyRuleBuilder implements IRuleBuilder {
 
-    private final Table ruleTable;
-    private final EntitySelector entitySelector;
+    private final List<EntitySelector> entitySelectors;
     private final Set<ISelector<?>> selectorSet;
+    private final String groupName;
+    private final String newGroupName;
 
     public ModifyRuleBuilder(Table ruleTable) {
-        this.ruleTable = ruleTable;
-        this.entitySelector = (EntitySelector) SelectorType.ENTITY.makeSelector(ruleTable);
+        this.groupName = ruleTable.getValOrDefault("group","hostile");
+        this.newGroupName = ruleTable.getValOrDefault("new_group",this.groupName);
+        this.entitySelectors = new ArrayList<>();
+        for(Table entityTable : ruleTable.getTablesByName("entity"))
+            this.entitySelectors.add((EntitySelector)SelectorType.ENTITY.makeSelector(entityTable));
         this.selectorSet = new HashSet<>();
         parseSelectors(ruleTable);
     }
@@ -42,6 +44,6 @@ public class ModifyRuleBuilder implements IRuleBuilder {
 
     @Override
     public IRule build() {
-        return null;
+        return new DynamicModify(this.groupName,this.newGroupName,this.entitySelectors,this.selectorSet);
     }
 }

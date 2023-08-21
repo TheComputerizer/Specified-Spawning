@@ -1,7 +1,7 @@
 package mods.thecomputerizer.specifiedspawning.rules.remove;
 
 import mods.thecomputerizer.specifiedspawning.ConfigManager;
-import mods.thecomputerizer.specifiedspawning.Constants;
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.IRule;
 import mods.thecomputerizer.specifiedspawning.rules.IRuleBuilder;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
@@ -11,17 +11,19 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import org.apache.logging.log4j.Level;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class RemoveRuleBuilder implements IRuleBuilder {
 
-    private final EntitySelector entitySelector;
+    private final List<EntitySelector> entitySelectors;
     private final Set<ISelector<?>> selectorSet;
+    private final String groupName;
 
     public RemoveRuleBuilder(Table ruleTable) {
-        this.entitySelector = (EntitySelector) SelectorType.ENTITY.makeSelector(ruleTable.getTableByName("entity"));
+        this.groupName = ruleTable.getValOrDefault("group","hostile");
+        this.entitySelectors = new ArrayList<>();
+        for(Table entityTable : ruleTable.getTablesByName("entity"))
+            this.entitySelectors.add((EntitySelector)SelectorType.ENTITY.makeSelector(entityTable));
         this.selectorSet = new HashSet<>();
         parseSelectors(ruleTable);
     }
@@ -45,10 +47,10 @@ public class RemoveRuleBuilder implements IRuleBuilder {
     @Override
     public IRule build() {
         if(ConfigManager.INSTANCE.isMoreLogging()) {
-            String isNull = Objects.isNull(this.entitySelector) ? "null" : "nonnull";
+            String isNull = Objects.isNull(this.entitySelectors) ? "null" : "nonnull";
             Constants.logVerbose(Level.DEBUG,"Building rule with {} entity selector", isNull);
         }
-        return isBasic() ? buildBasic() : new DynamicRemove(this.entitySelector,this.selectorSet);
+        return isBasic() ? buildBasic() : new DynamicRemove(this.groupName,this.entitySelectors,this.selectorSet);
     }
 
     private IRule buildBasic() {
@@ -56,7 +58,7 @@ public class RemoveRuleBuilder implements IRuleBuilder {
         for(ISelector<?> selector : this.selectorSet)
             if(selector instanceof BiomeSelector)
                 biomeSelectors.add((BiomeSelector)selector);
-        return new SingletonRemove(this.entitySelector,biomeSelectors);
+        return new SingletonRemove(this.groupName,this.entitySelectors,biomeSelectors);
     }
 
     private boolean isBasic() {

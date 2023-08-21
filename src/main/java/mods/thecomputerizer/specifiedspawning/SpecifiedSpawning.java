@@ -1,5 +1,6 @@
 package mods.thecomputerizer.specifiedspawning;
 
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.RuleManager;
 import mods.thecomputerizer.specifiedspawning.util.EnumUtil;
 import mods.thecomputerizer.specifiedspawning.world.ReloadCommand;

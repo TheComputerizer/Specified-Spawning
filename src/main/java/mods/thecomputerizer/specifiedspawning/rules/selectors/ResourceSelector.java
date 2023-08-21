@@ -1,6 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.rules.selectors;
 
-import mods.thecomputerizer.specifiedspawning.Constants;
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 

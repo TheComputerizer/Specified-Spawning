@@ -1,6 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.world;
 
-import mods.thecomputerizer.specifiedspawning.Constants;
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.SpecifiedSpawning;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;

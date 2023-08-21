@@ -93,11 +93,11 @@ mixin {
 jar {
     manifest {
         attributes([
-                "Specification-Version"   : project.version,
-                "Implementation-Title"    : project.name,
-                "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
-                "TweakOrder": 0,
-                "MixinConfigs": "specifiedspawning.mixin.json",
+                'Specification-Version'   : project.version,
+                'Implementation-Title'    : project.name,
+                'FMLCorePlugin': 'mods.thecomputerizer.specifiedspawning.core.MixinPlugin',
+                'FMLCorePluginContainsFMLMod': 'true',
+                'ForceLoadAsMod': 'false',
                 'FMLAT': 'specifiedspawning_at.cfg',
 
         ])

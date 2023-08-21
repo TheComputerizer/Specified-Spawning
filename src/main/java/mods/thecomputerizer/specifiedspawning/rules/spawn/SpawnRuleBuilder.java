@@ -8,17 +8,19 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class SpawnRuleBuilder implements IRuleBuilder {
 
-    private final EntitySelector entitySelector;
+    private final List<EntitySelector> entitySelectors;
     private final Set<ISelector<?>> selectorSet;
+    private final String groupName;
 
     public SpawnRuleBuilder(Table ruleTable) {
-        this.entitySelector = (EntitySelector) SelectorType.ENTITY.makeSelector(ruleTable.getTableByName("entity"));
+        this.groupName = ruleTable.getValOrDefault("group","hostile");
+        this.entitySelectors = new ArrayList<>();
+        for(Table entityTable : ruleTable.getTablesByName("entity"))
+            this.entitySelectors.add((EntitySelector)SelectorType.ENTITY.makeSelector(entityTable));
         this.selectorSet = new HashSet<>();
         parseSelectors(ruleTable);
     }
@@ -41,7 +43,7 @@ public class SpawnRuleBuilder implements IRuleBuilder {
 
     @Override
     public IRule build() {
-        return isBasic() ? buildBasic() : new DynamicSpawn(this.entitySelector,this.selectorSet);
+        return isBasic() ? buildBasic() : new DynamicSpawn(this.groupName,this.entitySelectors,this.selectorSet);
     }
 
     private IRule buildBasic() {
@@ -49,7 +51,7 @@ public class SpawnRuleBuilder implements IRuleBuilder {
         for(ISelector<?> selector : this.selectorSet)
             if(selector instanceof BiomeSelector)
                 biomeSelectors.add((BiomeSelector)selector);
-        return new SingletonSpawn(this.entitySelector,biomeSelectors);
+        return new SingletonSpawn(this.groupName,this.entitySelectors,biomeSelectors);
     }
 
     private boolean isBasic() {

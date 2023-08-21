@@ -1,10 +1,14 @@
 {
   "required": true,
-  "package": "mods.thecomputerizer.specifiedspawning.mixin",
+  "package": "mods.thecomputerizer.specifiedspawning.mixin.mixins",
   "refmap": "specifiedspawning.refmap.json",
   "target": "@env(DEFAULT)",
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
-  "mixins": [],
+  "mixins": [
+    "MixinEntity",
+    "MixinEnumCreatureType",
+    "MixinSpawnListEntry"
+  ],
   "client": []
 }

@@ -7,19 +7,20 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 
+import java.util.List;
 import java.util.Set;
 
 public class SingletonRemove extends SingletonRule implements IRemoveRule {
 
 
-    public SingletonRemove(EntitySelector entitySelector, Set<BiomeSelector> biomeSelectors) {
-        super(entitySelector, biomeSelectors);
+    public SingletonRemove(String groupName,List<EntitySelector> entitySelectors,Set<BiomeSelector> biomeSelectors) {
+        super(groupName,entitySelectors, biomeSelectors);
     }
 
     @Override
     protected void apply(Biome biome) {
         for(EntityEntry entity : getEntities()) {
-            biome.getSpawnableList(SpawnManager.getEntityType(entity.getEntityClass()))
+            biome.getSpawnableList(getSpawnGroup().getType())
                     .removeIf(entry -> entry.entityClass == entity.getEntityClass());
         }
     }

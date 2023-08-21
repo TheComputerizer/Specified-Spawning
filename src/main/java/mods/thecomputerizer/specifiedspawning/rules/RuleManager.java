@@ -1,7 +1,8 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
 import mods.thecomputerizer.specifiedspawning.ConfigManager;
-import mods.thecomputerizer.specifiedspawning.Constants;
+import mods.thecomputerizer.specifiedspawning.core.Constants;
+import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.util.ThreadSafety;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.minecraft.world.biome.Biome;
@@ -25,6 +26,11 @@ public class RuleManager {
                 RULE_BUILDERS.get(type).add(type.parseRuleBuilder(table));
             }
         }
+    }
+
+    public static void addDefaultGroups(SpawnGroup.Builder ... builders) {
+        RULE_BUILDERS.putIfAbsent(RuleType.GROUP,new HashSet<>());
+        RULE_BUILDERS.get(RuleType.GROUP).addAll(Arrays.asList(builders));
     }
 
     public static void buildRules() {

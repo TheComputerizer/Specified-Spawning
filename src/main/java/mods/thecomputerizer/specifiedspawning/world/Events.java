@@ -1,6 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.world;
 
-import mods.thecomputerizer.specifiedspawning.Constants;
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
 import mods.thecomputerizer.specifiedspawning.rules.RuleManager;
 import net.minecraft.world.WorldServer;
