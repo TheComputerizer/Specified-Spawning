@@ -15,6 +15,7 @@ public class SpawnRuleBuilder implements IRuleBuilder {
     private final List<EntitySelector> entitySelectors;
     private final Set<ISelector<?>> selectorSet;
     private final String groupName;
+    private final List<Table> jockeyTables;
 
     public SpawnRuleBuilder(Table ruleTable) {
         this.groupName = ruleTable.getValOrDefault("group","hostile");
@@ -23,6 +24,7 @@ public class SpawnRuleBuilder implements IRuleBuilder {
             this.entitySelectors.add((EntitySelector)SelectorType.ENTITY.makeSelector(entityTable));
         this.selectorSet = new HashSet<>();
         parseSelectors(ruleTable);
+        this.jockeyTables = ruleTable.getTablesByName("jockey");
     }
 
     private void parseSelectors(Table ruleTable) {
@@ -43,7 +45,7 @@ public class SpawnRuleBuilder implements IRuleBuilder {
 
     @Override
     public IRule build() {
-        return isBasic() ? buildBasic() : new DynamicSpawn(this.groupName,this.entitySelectors,this.selectorSet);
+        return isBasic() ? buildBasic() : new DynamicSpawn(this.groupName,this.entitySelectors,this.selectorSet,this.jockeyTables);
     }
 
     private IRule buildBasic() {
@@ -51,7 +53,7 @@ public class SpawnRuleBuilder implements IRuleBuilder {
         for(ISelector<?> selector : this.selectorSet)
             if(selector instanceof BiomeSelector)
                 biomeSelectors.add((BiomeSelector)selector);
-        return new SingletonSpawn(this.groupName,this.entitySelectors,biomeSelectors);
+        return new SingletonSpawn(this.groupName,this.entitySelectors,biomeSelectors,this.jockeyTables);
     }
 
     private boolean isBasic() {

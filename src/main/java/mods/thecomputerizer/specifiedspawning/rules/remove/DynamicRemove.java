@@ -1,7 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.rules.remove;
 
 import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
-import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
@@ -24,7 +23,7 @@ public class DynamicRemove extends DynamicRule implements IRemoveRule {
         for(EntityEntry entity : getEntities()) {
             for(Biome.SpawnListEntry entry : biome.getSpawnableList(getSpawnGroup().getType())) {
                 if(entry.entityClass == entity.getEntityClass()) {
-                    ((ISpawnGroupObject)entry).specifiedspawning$setSpawnGroup(getSpawnGroup());
+                    ((ISpawnGroupObject)entry).specifiedspawning$setSpawnGroup(getSpawnGroup(),false);
                     ret.add(entry);
                 }
             }

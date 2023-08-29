@@ -5,7 +5,7 @@ import net.minecraft.entity.EnumCreatureType;
 import org.spongepowered.asm.mixin.*;
 
 @Mixin(EnumCreatureType.class)
-public class MixinEnumCreatureType {
+public abstract class MixinEnumCreatureType {
 
     @Shadow @Final private int maxNumberOfCreature;
 

@@ -15,7 +15,10 @@ import java.util.Objects;
 public abstract class MixinEntity implements ISpawnGroupObject {
 
     @Unique
-    private SpawnGroup specifiedspawning$SpawnGroup;
+    private SpawnGroup specifiedspawning$spawnGroup;
+
+    @Unique
+    private boolean specifiedspawning$isModifiedSpawn;
 
     /**
      * @author The_Computerizer
@@ -25,12 +28,13 @@ public abstract class MixinEntity implements ISpawnGroupObject {
     @Overwrite
     public boolean isCreatureType(EnumCreatureType type, boolean forSpawnCount) {
         if (forSpawnCount && ((Object)this instanceof EntityLiving) && ((EntityLiving)(Object)this).isNoDespawnRequired()) return false;
-        return Objects.nonNull(this.specifiedspawning$SpawnGroup) ? this.specifiedspawning$SpawnGroup.getType()==type :
+        return Objects.nonNull(this.specifiedspawning$spawnGroup) ? this.specifiedspawning$spawnGroup.getType()==type :
                 type.getCreatureClass().isAssignableFrom(this.getClass());
     }
 
     @Override
-    public void specifiedspawning$setSpawnGroup(SpawnGroup group) {
-        this.specifiedspawning$SpawnGroup = group;
+    public void specifiedspawning$setSpawnGroup(SpawnGroup group, boolean isModifiedSpawn) {
+        this.specifiedspawning$spawnGroup = group;
+        this.specifiedspawning$isModifiedSpawn = isModifiedSpawn;
     }
 }

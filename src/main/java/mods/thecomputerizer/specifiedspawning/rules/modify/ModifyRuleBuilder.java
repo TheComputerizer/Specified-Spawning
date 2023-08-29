@@ -15,15 +15,19 @@ public class ModifyRuleBuilder implements IRuleBuilder {
     private final Set<ISelector<?>> selectorSet;
     private final String groupName;
     private final String newGroupName;
+    private final boolean modifySpawnCounts;
+    private final List<Table> jockeyTables;
 
     public ModifyRuleBuilder(Table ruleTable) {
         this.groupName = ruleTable.getValOrDefault("group","hostile");
         this.newGroupName = ruleTable.getValOrDefault("new_group",this.groupName);
+        this.modifySpawnCounts = ruleTable.getValOrDefault("modify_spawn_counts",false);
         this.entitySelectors = new ArrayList<>();
         for(Table entityTable : ruleTable.getTablesByName("entity"))
             this.entitySelectors.add((EntitySelector)SelectorType.ENTITY.makeSelector(entityTable));
         this.selectorSet = new HashSet<>();
         parseSelectors(ruleTable);
+        this.jockeyTables = ruleTable.getTablesByName("jockey");
     }
 
     private void parseSelectors(Table ruleTable) {
@@ -44,6 +48,7 @@ public class ModifyRuleBuilder implements IRuleBuilder {
 
     @Override
     public IRule build() {
-        return new DynamicModify(this.groupName,this.newGroupName,this.entitySelectors,this.selectorSet);
+        return new DynamicModify(this.groupName,this.newGroupName,this.modifySpawnCounts,this.entitySelectors,
+                this.selectorSet,this.jockeyTables);
     }
 }
