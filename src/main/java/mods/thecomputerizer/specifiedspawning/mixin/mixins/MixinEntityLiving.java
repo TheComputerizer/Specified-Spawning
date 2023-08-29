@@ -1,6 +1,5 @@
 package mods.thecomputerizer.specifiedspawning.mixin.mixins;
 
-import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.mixin.access.IPotentialJockey;
 import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
 import net.minecraft.entity.EntityLiving;
@@ -26,12 +25,9 @@ public abstract class MixinEntityLiving implements IPotentialJockey {
     private void specifiedspawning$onInitialSpawn(DifficultyInstance difficulty, IEntityLivingData livingdata,
                                                   CallbackInfoReturnable<IEntityLivingData> cir) {
         EntityLiving living = (EntityLiving)(Object)this;
-        if(!living.isBeingRidden()) {
-            Constants.LOGGER.error("PRE RANDOM");
+        if(!living.isBeingRidden() && !this.specifiedspawning$potentialJockeys.isEmpty()) {
             Jockey jockey = WeightedRandom.getRandomItem(living.world.rand,this.specifiedspawning$potentialJockeys);
-            Constants.LOGGER.error("POST RANDOM");
             if(jockey.isValidJockey()) jockey.spawnRider(living,difficulty);
-            Constants.LOGGER.error("POST SPAWN");
         }
     }
 
