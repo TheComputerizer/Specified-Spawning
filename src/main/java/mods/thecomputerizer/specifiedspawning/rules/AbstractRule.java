@@ -4,9 +4,9 @@ import mods.thecomputerizer.specifiedspawning.rules.group.IGroupRule;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.rules.modify.IModifyRule;
 import mods.thecomputerizer.specifiedspawning.rules.remove.IRemoveRule;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.ResourceSelector;
 import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -45,10 +45,10 @@ public abstract class AbstractRule implements IRule {
         this.ruleDescriptor = singleton+"-"+type;
     }
 
-    private <V extends IForgeRegistryEntry<V>> Set<V> getRegSet(IForgeRegistry<V> reg, ISelector<V> selector) {
+    private <V extends IForgeRegistryEntry<V>> Set<V> getRegSet(IForgeRegistry<V> reg, ResourceSelector<V> selector) {
         Set<V> ret = new HashSet<>();
         for(V entry : reg.getValuesCollection())
-            if(selector.isValid(entry,this.ruleDescriptor)) ret.add(entry);
+            if(selector.isResourceValid(entry,this.ruleDescriptor)) ret.add(entry);
         return ret;
     }
 

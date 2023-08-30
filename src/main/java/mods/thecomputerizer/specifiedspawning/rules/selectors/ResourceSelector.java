@@ -2,24 +2,33 @@ package mods.thecomputerizer.specifiedspawning.rules.selectors;
 
 import mods.thecomputerizer.specifiedspawning.core.Constants;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.apache.logging.log4j.Level;
 
 import java.util.Objects;
 import java.util.function.Function;
 
-public abstract class ResourceSelector {
+public abstract class ResourceSelector<T> extends AbstractSelector {
 
     private final String mod;
     private final String regID;
     private final String matcher;
 
-    protected ResourceSelector(String mod, String regID, String matcher) {
+    protected ResourceSelector(boolean isInverted, String mod, String regID, String matcher) {
+        super(isInverted);
         this.mod = mod.isEmpty() ? null : mod;
         this.regID = regID.isEmpty() ? null : regID;
         this.matcher = matcher.isEmpty() ? null : matcher;
         Constants.logVerbose(Level.DEBUG,"Instantiated new Resource Selector with mod '{}', registry id '{}', and " +
                 "matcher '{}'",this.mod,this.regID,this.matcher);
     }
+
+    protected boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
+        return true;
+    }
+
+    public abstract boolean isResourceValid(T obj, String ruleDescriptor);
 
     protected boolean isResourceValid(ResourceLocation res, String fromType, String ruleDescriptor) {
         if(Objects.isNull(res)) return false;

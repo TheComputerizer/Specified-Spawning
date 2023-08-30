@@ -1,7 +1,7 @@
 package mods.thecomputerizer.specifiedspawning.world.entity;
 
 import mods.thecomputerizer.specifiedspawning.core.Constants;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -22,7 +22,7 @@ public class Jockey extends WeightedRandom.Item {
         if(Objects.nonNull(selector)) {
             List<EntityEntry> entries = new ArrayList<>();
             for(EntityEntry entry : ForgeRegistries.ENTITIES.getValuesCollection())
-                if(selector.isValid(entry,"jockey")) entries.add(entry);
+                if(selector.isResourceValid(entry,"jockey")) entries.add(entry);
             EntityEntry rider = entries.isEmpty() ? null : entries.get(Constants.RANDOM.nextInt(entries.size()));
             Jockey jockey = new Jockey(rider,jockeyTable.getValOrDefault("weight",10));
             for(Table subJockeyTable : jockeyTable.getTablesByName("jockey")) {

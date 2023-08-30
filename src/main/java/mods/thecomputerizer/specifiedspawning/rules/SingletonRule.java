@@ -1,8 +1,8 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
 import mods.thecomputerizer.specifiedspawning.core.Constants;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;

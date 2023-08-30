@@ -1,7 +1,12 @@
 package mods.thecomputerizer.specifiedspawning.rules.selectors;
 
-public interface ISelector<T> {
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
-    boolean isValid(T value, String ruleDescriptor);
-    boolean isBasic();
+public interface ISelector {
+
+    boolean isValid(BlockPos pos, World world, String ruleDescriptor);
+
+    SelectorType getType();
+    boolean isNonBasic();
 }

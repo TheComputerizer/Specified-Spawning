@@ -1,22 +1,26 @@
-package mods.thecomputerizer.specifiedspawning.rules.selectors;
+package mods.thecomputerizer.specifiedspawning.rules.selectors.gamestages;
 
 import mods.thecomputerizer.specifiedspawning.core.Constants;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.AbstractSelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.specifiedspawning.util.ParsingUtils;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import mods.thecomputerizer.theimpossiblelibrary.util.TextUtil;
 import net.darkhax.gamestages.GameStageHelper;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.Level;
 
 import java.util.List;
 import java.util.Objects;
 
-public class GamestageSelector implements ISelector<World> {
+public class GamestageSelector extends AbstractSelector {
 
     public static GamestageSelector makeSelector(Table table) {
         if(Objects.isNull(table)) return null;
-        return new GamestageSelector(ParsingUtils.getStringList(table.getVarMap().get("gamestage")),
+        return new GamestageSelector(table.getValOrDefault("inverted",false),
+                ParsingUtils.getStringList(table.getVarMap().get("gamestage")),
                 table.getValOrDefault("isWhitelist",true),
                 table.getValOrDefault("allStages",true),
                 table.getValOrDefault("allPlayers",false));
@@ -27,7 +31,9 @@ public class GamestageSelector implements ISelector<World> {
     private final boolean allStages;
     private final boolean allPlayers;
 
-    private GamestageSelector(List<String> stageNames, boolean isWhitelist, boolean allStages, boolean allPlayers) {
+    private GamestageSelector(boolean isInverted, List<String> stageNames, boolean isWhitelist, boolean allStages,
+                              boolean allPlayers) {
+        super(isInverted);
         this.stageNames = stageNames;
         this.isWhitelist = isWhitelist;
         this.allStages = allStages;
@@ -36,7 +42,7 @@ public class GamestageSelector implements ISelector<World> {
     }
 
     @Override
-    public boolean isValid(World world, String ruleDescriptor) {
+    public boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
         List<EntityPlayer> players = world.playerEntities;
         if(players.isEmpty()) return false;
         boolean any = false;
@@ -57,10 +63,13 @@ public class GamestageSelector implements ISelector<World> {
         return this.isWhitelist == hasAny;
     }
 
-
+    @Override
+    public boolean isNonBasic() {
+        return false;
+    }
 
     @Override
-    public boolean isBasic() {
-        return false;
+    public SelectorType getType() {
+        return SelectorType.GAMESTAGE;
     }
 }

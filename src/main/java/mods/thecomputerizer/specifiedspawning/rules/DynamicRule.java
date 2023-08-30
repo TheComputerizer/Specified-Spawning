@@ -1,44 +1,53 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
 import mods.thecomputerizer.specifiedspawning.core.Constants;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.*;
-import net.minecraft.world.World;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.scalinghealth.ScalingDifficultySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.SpawnBlockSelector;
+import mods.thecomputerizer.specifiedspawning.world.SHHooks;
+import net.minecraft.block.Block;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.logging.log4j.Level;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public abstract class DynamicRule extends AbstractRule {
 
     private final List<EntitySelector> entitySelectors;
     private final Set<BiomeSelector> biomeSelectors;
-    private final Set<DimensionSelector> dimensionSelectors;
-    private final Set<GamestageSelector> gamestageSelectors;
-    private final Set<LightSelector> lightSelectors;
-    private final Set<HeightSelector> heightSelectors;
+    private final Set<ISelector> dynamicSelectors;
+    private final Map<SelectorType,Tuple<Integer,MutableInt>> dynamicTypeMap;
     private Set<EntityEntry> entities;
     private Set<Biome> biomes;
 
-    public DynamicRule(String groupName, List<EntitySelector> entitySelectors, Set<ISelector<?>> dynamicSelectors) {
+    public DynamicRule(String groupName, List<EntitySelector> entitySelectors, Set<ISelector> dynamicSelectors) {
         super(groupName);
         this.entitySelectors = entitySelectors;
         this.biomeSelectors = new HashSet<>();
-        this.dimensionSelectors = new HashSet<>();
-        this.gamestageSelectors = new HashSet<>();
-        this.lightSelectors = new HashSet<>();
-        this.heightSelectors = new HashSet<>();
-        for(ISelector<?> selector : dynamicSelectors) {
-            if(selector instanceof BiomeSelector) this.biomeSelectors.add((BiomeSelector)selector);
-            if(selector instanceof DimensionSelector) this.dimensionSelectors.add((DimensionSelector)selector);
-            if(selector instanceof GamestageSelector) this.gamestageSelectors.add((GamestageSelector)selector);
-            if(selector instanceof LightSelector) this.lightSelectors.add((LightSelector)selector);
-            if(selector instanceof HeightSelector) this.heightSelectors.add((HeightSelector)selector);
+        final Map<SelectorType,MutableInt> counterMap = new HashMap<>();
+        dynamicSelectors.removeIf(selector -> {
+            SelectorType type = selector.getType();
+            if(type==SelectorType.SCALINGDIFFICULTY) SHHooks.setLoadedScalingDifficultySelector(true);
+            counterMap.putIfAbsent(type,new MutableInt());
+            counterMap.get(type).increment();
+            boolean ret = selector instanceof BiomeSelector;
+            if(ret) this.biomeSelectors.add((BiomeSelector)selector);
+            return ret;
+        });
+        this.dynamicSelectors = dynamicSelectors;
+        this.dynamicTypeMap = new HashMap<>();
+        for(Map.Entry<SelectorType,MutableInt> typeEntry : counterMap.entrySet()) {
+            int total = typeEntry.getValue().getValue();
+            if(total>0) this.dynamicTypeMap.put(typeEntry.getKey(),new Tuple<>(total,new MutableInt()));
         }
     }
 
@@ -52,6 +61,14 @@ public abstract class DynamicRule extends AbstractRule {
         if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty())
             this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
         else this.biomes = getBiomes(this.biomeSelectors);
+        for(ISelector selector : this.dynamicSelectors)
+            if(selector.getType()==SelectorType.SPAWNBLOCK)
+                cacheBlockSelector((SpawnBlockSelector)selector);
+    }
+
+    public void cacheBlockSelector(SpawnBlockSelector selector) {
+        for(Block block : ForgeRegistries.BLOCKS.getValuesCollection())
+            selector.isResourceValid(block,this.ruleDescriptor);
     }
 
     public Set<Biome.SpawnListEntry> apply() {
@@ -74,32 +91,20 @@ public abstract class DynamicRule extends AbstractRule {
         return min ? this.entitySelectors.get(0).getMinGroupSpawn() : this.entitySelectors.get(0).getMaxGroupSpawn();
     }
 
-    public boolean checkDimension(int dim) {
-        if(this.dimensionSelectors.isEmpty()) return true;
-        for(DimensionSelector selector : this.dimensionSelectors)
-            if(selector.isValid(dim,this.ruleDescriptor)) return true;
-        return false;
-    }
-
-    public boolean checkGamestages(World world) {
-        if(!Loader.isModLoaded("gamestages") || this.gamestageSelectors.isEmpty()) return true;
-        for(GamestageSelector selector : this.gamestageSelectors)
-            if(selector.isValid(world,this.ruleDescriptor)) return true;
-        return false;
-    }
-
-    public boolean checkLight(int light) {
-        if(this.lightSelectors.isEmpty()) return true;
-        for(LightSelector selector : this.lightSelectors)
-            if(selector.isValid(light,this.ruleDescriptor)) return true;
-        return false;
-    }
-
-    public boolean checkHeight(int yPos) {
-        if(this.heightSelectors.isEmpty()) return true;
-        for(HeightSelector selector : this.heightSelectors)
-            if(selector.isValid(yPos,this.ruleDescriptor)) return true;
-        return false;
+    public boolean checkSelectors(BlockPos pos, WorldServer world) {
+        for(ISelector selector : this.dynamicSelectors) {
+            if(selector instanceof ScalingDifficultySelector)
+                ((ScalingDifficultySelector)selector).setPlayerData(SHHooks.getCachedData());
+            if(selector.isValid(pos, world, this.ruleDescriptor))
+                this.dynamicTypeMap.get(selector.getType()).getSecond().increment();
+        }
+        boolean ret = true;
+        for(Tuple<Integer,MutableInt> typeCounter : this.dynamicTypeMap.values()) {
+            MutableInt counter = typeCounter.getSecond();
+            if(counter.getValue()<=0) ret = false;
+            counter.setValue(0);
+        }
+        return ret;
     }
 
     public abstract boolean isRemoval();

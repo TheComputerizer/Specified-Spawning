@@ -10,9 +10,10 @@ import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class ConfigManager {
 
@@ -35,6 +36,12 @@ public class ConfigManager {
                 "",
                 "# Write more things to the log. Helpful for debugging purposes. Default value is false",
                 "more_logging = false",
+                "",
+                "# For organizational purposes if you so choose, you can add extra config files to 'config/SpecifiedSpawning'.",
+                "# Add the paths to those extra configs here in the order that you want them to be loaded. Do not include",
+                "# 'config/SpecifiedSpawning' or '.toml' in your file paths as those are handles automatically",
+                "# This file will always be loaded first",
+                "other_configs = [  ]",
                 "");
     }
 
@@ -57,18 +64,40 @@ public class ConfigManager {
     }
 
     private final Holder parsedConfig;
+    private final List<Holder> otherConfigs;
     private final boolean moreLogging;
 
     private ConfigManager(Holder parsedConfig) {
         this.parsedConfig = parsedConfig;
+        this.otherConfigs = new ArrayList<>();
         this.moreLogging = this.parsedConfig.getValOrDefault("more_logging",false);
+        collectOtherConfigs(this.parsedConfig.getValOrDefault("other_configs",new ArrayList<>()));
+    }
+
+    private void collectOtherConfigs(List<String> filePaths) {
+        for(String path : filePaths) {
+            File file = FileUtil.generateNestedFile("config/SpecifiedSpawning/"+path+".toml",false);
+            if(Objects.nonNull(file)) {
+                Holder holder;
+                try {
+                    holder = TomlUtil.readFully(file);
+                } catch (IOException ex) {
+                    Constants.LOGGER.error("Failed to parse other config file at {}!",file.getPath(),ex);
+                    holder = null;
+                }
+                if(Objects.nonNull(holder)) this.otherConfigs.add(holder);
+            }
+        }
     }
 
     public boolean isMoreLogging() {
         return this.moreLogging;
     }
 
-    public Collection<Table> getTables() {
-        return this.parsedConfig.getTables().values();
+    public List<Table> getTables() {
+        List<Table> ret = new ArrayList<>(this.parsedConfig.getTables().values());
+        for(Holder other : this.otherConfigs)
+            ret.addAll(other.getTables().values());
+        return ret;
     }
 }

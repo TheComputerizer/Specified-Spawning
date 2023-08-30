@@ -51,22 +51,23 @@ repositories {
             includeGroup 'curse.maven'
         }
     }
-    flatDir {
-        dirs 'build/libs'
-    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
-    //implementation(fg.deobf("curse.maven:the-impossible-library-661115:${project.til_version}"))
-    //noinspection DependencyNotationArgument
-    implementation name: "theimpossiblelibrary-${project.minecraft_version}-0.3.0"
+    //required
+    implementation(fg.deobf("curse.maven:theimpossiblelibrary-661115:${project.lib_version}"))
+
+    //supported
     implementation(fg.deobf("curse.maven:game-stages-268655:${project.gamestages_version}"))
+    implementation(fg.deobf("curse.maven:musictriggers-518410:${project.musictriggers_version}"))
+    implementation(fg.deobf("curse.maven:nyx-349214:${project.nyx_version}"))
+    implementation(fg.deobf("curse.maven:scaling-health-248027:${project.scalinghealth_version}"))
 
     //don't need these to compile
-    runtimeOnly(fg.deobf("curse.maven:had-enough-items-557549:${project.hei_version}"))
     runtimeOnly(fg.deobf("curse.maven:bookshelf-228525:${project.bookshelf_version}"))
+    runtimeOnly(fg.deobf("curse.maven:had-enough-items-557549:${project.hei_version}"))
 
     //mixin stuff
     implementation(fg.deobf("curse.maven:mixin-booter-419286:${project.mixinbooter_version}"))

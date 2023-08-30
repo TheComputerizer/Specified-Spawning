@@ -2,10 +2,10 @@ package mods.thecomputerizer.specifiedspawning.rules.modify;
 
 import mods.thecomputerizer.specifiedspawning.mixin.access.IPotentialJockey;
 import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
-import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
+import mods.thecomputerizer.specifiedspawning.rules.SingletonRule;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
@@ -17,23 +17,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class DynamicModify extends DynamicRule implements IModifyRule {
+public class SingletonModify extends SingletonRule implements IModifyRule {
 
     private final String newGroupName;
     private final boolean modifySpawnCounts;
     private final List<Jockey> jockeys;
 
-    public DynamicModify(String groupName, String newGroupName, boolean modifySpawnCounts, List<EntitySelector> entitySelectors,
-                         Set<ISelector> dynamicSelectors, List<Table> jockeyTables) {
-        super(groupName,entitySelectors, dynamicSelectors);
+    public SingletonModify(String groupName, String newGroupName, boolean modifySpawnCounts, List<EntitySelector> entitySelectors,
+                           Set<BiomeSelector> biomeSelectors, List<Table> jockeyTables) {
+        super(groupName,entitySelectors, biomeSelectors);
         this.newGroupName = newGroupName;
         this.modifySpawnCounts = modifySpawnCounts;
         this.jockeys = jockeyTables.stream().map(Jockey::parse).collect(Collectors.toList());
     }
 
     @Override
-    protected Set<Biome.SpawnListEntry> apply(Biome biome) {
-        Set<Biome.SpawnListEntry> ret = new HashSet<>();
+    protected void apply(Biome biome) {
         for(EntityEntry entity : getEntities()) {
             Set<Biome.SpawnListEntry> modifiedGroupEntries = new HashSet<>();
             biome.getSpawnableList(getSpawnGroup().getType()).removeIf(entry -> {
@@ -44,13 +43,11 @@ public class DynamicModify extends DynamicRule implements IModifyRule {
                     }
                     if(shouldChangeGroup()) {
                         modifiedGroupEntries.add(entry);
-                        ret.add(entry);
                         return true;
                     } else {
                         ((ISpawnGroupObject)entry).specifiedspawning$setSpawnGroup(getSpawnGroup(),true);
                         for(Jockey jockey : this.jockeys)
                             ((IPotentialJockey)entry).specifiedspawning$addJockey(jockey);
-                        ret.add(entry);
                     }
                 }
                 return false;
@@ -64,15 +61,9 @@ public class DynamicModify extends DynamicRule implements IModifyRule {
                 entries.add(entry);
             }
         }
-        return ret;
     }
 
     private boolean shouldChangeGroup() {
         return !getGroupName().matches(this.newGroupName);
-    }
-
-    @Override
-    public boolean isRemoval() {
-        return false;
     }
 }

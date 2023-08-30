@@ -4,8 +4,8 @@ import mods.thecomputerizer.specifiedspawning.ConfigManager;
 import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.IRule;
 import mods.thecomputerizer.specifiedspawning.rules.IRuleBuilder;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.BiomeSelector;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
@@ -16,7 +16,7 @@ import java.util.*;
 public class RemoveRuleBuilder implements IRuleBuilder {
 
     private final List<EntitySelector> entitySelectors;
-    private final Set<ISelector<?>> selectorSet;
+    private final Set<ISelector> selectorSet;
     private final String groupName;
 
     public RemoveRuleBuilder(Table ruleTable) {
@@ -33,11 +33,11 @@ public class RemoveRuleBuilder implements IRuleBuilder {
             if(type!=SelectorType.ENTITY) {
                 if(type.isSubTable()) {
                     for(Table table : ruleTable.getTablesByName(type.getName())) {
-                        ISelector<?> selector = type.makeSelector(table);
+                        ISelector selector = type.makeSelector(table);
                         if(Objects.nonNull(selector)) this.selectorSet.add(selector);
                     }
                 } else {
-                    ISelector<?> selector = type.makeSelector(ruleTable);
+                    ISelector selector = type.makeSelector(ruleTable);
                     if(Objects.nonNull(selector)) this.selectorSet.add(selector);
                 }
             }
@@ -55,15 +55,15 @@ public class RemoveRuleBuilder implements IRuleBuilder {
 
     private IRule buildBasic() {
         Set<BiomeSelector> biomeSelectors  = new HashSet<>();
-        for(ISelector<?> selector : this.selectorSet)
+        for(ISelector selector : this.selectorSet)
             if(selector instanceof BiomeSelector)
                 biomeSelectors.add((BiomeSelector)selector);
         return new SingletonRemove(this.groupName,this.entitySelectors,biomeSelectors);
     }
 
     private boolean isBasic() {
-        for(ISelector<?> selector : this.selectorSet) {
-            if(!selector.isBasic()) return false;
+        for(ISelector selector : this.selectorSet) {
+            if(selector.isNonBasic()) return false;
         }
         return true;
     }

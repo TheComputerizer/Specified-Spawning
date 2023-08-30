@@ -4,7 +4,7 @@ import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.mixin.access.IPotentialJockey;
 import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
 import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
@@ -22,7 +22,7 @@ public class DynamicSpawn extends DynamicRule implements ISpawnRule {
 
     private final List<Jockey> jockeys;
 
-    public DynamicSpawn(String groupName, List<EntitySelector> entitySelectors, Set<ISelector<?>> dynamicSelectors,
+    public DynamicSpawn(String groupName, List<EntitySelector> entitySelectors, Set<ISelector> dynamicSelectors,
                         List<Table> jockeyTables) {
         super(groupName,entitySelectors, dynamicSelectors);
         this.jockeys = jockeyTables.stream().map(Jockey::parse).collect(Collectors.toList());

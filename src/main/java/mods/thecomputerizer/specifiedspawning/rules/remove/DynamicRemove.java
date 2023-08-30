@@ -2,7 +2,7 @@ package mods.thecomputerizer.specifiedspawning.rules.remove;
 
 import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
 import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.EntitySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class DynamicRemove extends DynamicRule implements IRemoveRule {
 
-    public DynamicRemove(String groupName,List<EntitySelector> entitySelectors,Set<ISelector<?>> dynamicSelectors) {
+    public DynamicRemove(String groupName,List<EntitySelector> entitySelectors,Set<ISelector> dynamicSelectors) {
         super(groupName, entitySelectors, dynamicSelectors);
     }
 
