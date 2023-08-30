@@ -61,13 +61,14 @@ dependencies {
 
     //supported
     implementation(fg.deobf("curse.maven:game-stages-268655:${project.gamestages_version}"))
-    implementation(fg.deobf("curse.maven:musictriggers-518410:${project.musictriggers_version}"))
+    compileOnly(fg.deobf("curse.maven:musictriggers-518410:${project.musictriggers_version}"))
     implementation(fg.deobf("curse.maven:nyx-349214:${project.nyx_version}"))
     implementation(fg.deobf("curse.maven:scaling-health-248027:${project.scalinghealth_version}"))
 
     //don't need these to compile
     runtimeOnly(fg.deobf("curse.maven:bookshelf-228525:${project.bookshelf_version}"))
     runtimeOnly(fg.deobf("curse.maven:had-enough-items-557549:${project.hei_version}"))
+    runtimeOnly(fg.deobf("curse.maven:silent-lib-242998:${project.slib_version}"))
 
     //mixin stuff
     implementation(fg.deobf("curse.maven:mixin-booter-419286:${project.mixinbooter_version}"))
