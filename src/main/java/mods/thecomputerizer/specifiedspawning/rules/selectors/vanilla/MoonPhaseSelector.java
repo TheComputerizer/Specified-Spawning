@@ -14,7 +14,7 @@ public class MoonPhaseSelector extends AbstractSelector {
 
     public static MoonPhaseSelector makeSelector(Table table) {
         if(Objects.isNull(table)) return null;
-        List<Integer> moonPhase = ParsingUtils.getIntList(table.getVarMap().get("moonPhase"));
+        List<Integer> moonPhase = ParsingUtils.getIntList(table.getVarMap().get("moon_phase"));
         return moonPhase.isEmpty() ? null :
                 new MoonPhaseSelector(table.getValOrDefault("inverted",false), moonPhase);
     }

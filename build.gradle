@@ -99,7 +99,7 @@ jar {
                 'Implementation-Title'    : project.name,
                 'FMLCorePlugin': 'mods.thecomputerizer.specifiedspawning.core.MixinPlugin',
                 'FMLCorePluginContainsFMLMod': 'true',
-                'ForceLoadAsMod': 'false',
+                'ForceLoadAsMod': 'true',
                 'FMLAT': 'specifiedspawning_at.cfg',
 
         ])

@@ -21,9 +21,9 @@ public class GamestageSelector extends AbstractSelector {
         if(Objects.isNull(table)) return null;
         return new GamestageSelector(table.getValOrDefault("inverted",false),
                 ParsingUtils.getStringList(table.getVarMap().get("gamestage")),
-                table.getValOrDefault("isWhitelist",true),
-                table.getValOrDefault("allStages",true),
-                table.getValOrDefault("allPlayers",false));
+                table.getValOrDefault("is_whitelist",true),
+                table.getValOrDefault("all_stages",true),
+                table.getValOrDefault("all_players",false));
     }
 
     private final List<String> stageNames;
