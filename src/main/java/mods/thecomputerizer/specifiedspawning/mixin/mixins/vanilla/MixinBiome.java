@@ -1,8 +1,10 @@
 package mods.thecomputerizer.specifiedspawning.mixin.mixins.vanilla;
 
 import com.google.common.collect.Lists;
+import mods.thecomputerizer.specifiedspawning.core.Constants;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.world.biome.Biome;
+import org.apache.logging.log4j.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,6 +48,7 @@ public class MixinBiome {
                     return this.modSpawnableLists.get(creatureType);
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
+            Constants.logVerbose(Level.ERROR,"OOB {}",creatureType);
             return new ArrayList<>();
         }
     }
