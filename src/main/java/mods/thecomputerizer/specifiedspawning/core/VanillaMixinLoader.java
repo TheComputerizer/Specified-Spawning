@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class MixinPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
+public class VanillaMixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     static {
         Constants.LOGGER.info("Loading early mixin plugin");
@@ -42,6 +42,6 @@ public class MixinPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
     public List<String> getMixinConfigs() {
-        return Collections.singletonList("specifiedspawning.mixin.json");
+        return Collections.singletonList("specifiedspawning_vanilla.mixin.json");
     }
 }

@@ -2,6 +2,7 @@ package mods.thecomputerizer.specifiedspawning.rules.selectors.scalinghealth;
 
 import mods.thecomputerizer.specifiedspawning.rules.selectors.AbstractSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
+import mods.thecomputerizer.specifiedspawning.world.SHHooks;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -14,7 +15,8 @@ public class ScalingDifficultySelector extends AbstractSelector {
     public static ScalingDifficultySelector makeSelector(Table table) {
         if(Objects.isNull(table)) return null;
         return new ScalingDifficultySelector(table.getValOrDefault("inverted",false),
-                table.getValOrDefault("min",0f),table.getValOrDefault("max",6.75f));
+                table.getValOrDefault("min",0f),
+                table.getValOrDefault("max", SHHooks.getMaxDifficulty()));
     }
 
     private final float min;

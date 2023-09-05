@@ -1,4 +1,4 @@
-package mods.thecomputerizer.specifiedspawning.mixin.mixins;
+package mods.thecomputerizer.specifiedspawning.mixin.mixins.vanilla;
 
 import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
 import net.minecraft.entity.EnumCreatureType;

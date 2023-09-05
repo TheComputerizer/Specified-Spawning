@@ -1,4 +1,4 @@
-package mods.thecomputerizer.specifiedspawning.mixin.mixins;
+package mods.thecomputerizer.specifiedspawning.mixin.mixins.vanilla;
 
 import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
@@ -17,6 +17,7 @@ public abstract class MixinEntity implements ISpawnGroupObject {
     @Unique
     private SpawnGroup specifiedspawning$spawnGroup;
 
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     @Unique
     private boolean specifiedspawning$isModifiedSpawn;
 

@@ -16,12 +16,12 @@ import java.util.function.Function;
 public enum SelectorType {
 
     BIOME("biome",true,null,BiomeSelector::makeSelector),
-    BLOODMOON("bloodmoon",true,"nyx",BloodmoonSelector::makeSelector),
+    BLOODMOON("bloodmoon",false,"nyx",BloodmoonSelector::makeSelector),
     DIMENSION("dimension",false,null,DimensionSelector::makeSelector),
     ENTITY("entity",true,null,EntitySelector::makeSelector),
-    FULLMOON("fullmoon",true,"nyx",FullmoonSelector::makeSelector),
+    FULLMOON("fullmoon",false,"nyx",FullmoonSelector::makeSelector),
     GAMESTAGE("gamestage",true,"gamestages",GamestageSelector::makeSelector),
-    HARVESTMOON("harvestmoon",true,"nyx",HarvestmoonSelector::makeSelector),
+    HARVESTMOON("harvestmoon",false,"nyx",HarvestmoonSelector::makeSelector),
     HEIGHT("height",true,null,HeightSelector::makeSelector),
     LIGHT("light",true,null,LightSelector::makeSelector),
     MOONPHASE("moonphase",true,null,MoonPhaseSelector::makeSelector),
@@ -29,7 +29,7 @@ public enum SelectorType {
     SCALINGDIFFICULTY("scalingdifficulty",true,"scalingdifficulty",ScalingDifficultySelector::makeSelector),
     SPAWNBLOCK("spawnblock",true,null,SpawnBlockSelector::makeSelector),
     STARSHOWER("starshower",true,"nyx",StarShowerSelector::makeSelector),
-    STRUCTURE("structure",true,null,StructureSelector::makeSelector);
+    STRUCTURE("structure",false,null,StructureSelector::makeSelector);
 
 
     private final String name;

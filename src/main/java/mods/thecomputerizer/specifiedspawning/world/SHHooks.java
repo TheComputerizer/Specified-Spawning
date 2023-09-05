@@ -3,6 +3,7 @@ package mods.thecomputerizer.specifiedspawning.world;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
+import net.silentchaos512.scalinghealth.config.Config;
 import net.silentchaos512.scalinghealth.utils.SHPlayerDataHandler;
 
 import javax.annotation.Nullable;
@@ -26,5 +27,9 @@ public class SHHooks {
 
     public static void setLoadedScalingDifficultySelector(boolean loaded) {
         NEEDS_CHECKING = loaded;
+    }
+
+    public static float getMaxDifficulty() {
+        return Config.Difficulty.maxValue;
     }
 }

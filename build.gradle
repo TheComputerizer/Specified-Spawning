@@ -51,6 +51,13 @@ repositories {
             includeGroup 'curse.maven'
         }
     }
+    maven {
+        name = 'Modrinth'
+        url = uri('https://api.modrinth.com/maven')
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
 }
 
 dependencies {
@@ -64,6 +71,7 @@ dependencies {
     compileOnly(fg.deobf("curse.maven:musictriggers-518410:${project.musictriggers_version}"))
     implementation(fg.deobf("curse.maven:nyx-349214:${project.nyx_version}"))
     implementation(fg.deobf("curse.maven:scaling-health-248027:${project.scalinghealth_version}"))
+    implementation(fg.deobf("maven.modrinth:the-midnight:${project.midnight_version}"))
 
     //don't need these to compile
     runtimeOnly(fg.deobf("curse.maven:bookshelf-228525:${project.bookshelf_version}"))
@@ -97,7 +105,7 @@ jar {
         attributes([
                 'Specification-Version'   : project.version,
                 'Implementation-Title'    : project.name,
-                'FMLCorePlugin': 'mods.thecomputerizer.specifiedspawning.core.MixinPlugin',
+                'FMLCorePlugin': 'mods.thecomputerizer.specifiedspawning.core.VanillaMixinLoader',
                 'FMLCorePluginContainsFMLMod': 'true',
                 'ForceLoadAsMod': 'true',
                 'FMLAT': 'specifiedspawning_at.cfg',
