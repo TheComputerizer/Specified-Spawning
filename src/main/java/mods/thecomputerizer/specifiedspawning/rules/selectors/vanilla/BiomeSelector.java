@@ -29,7 +29,7 @@ public class BiomeSelector extends ResourceSelector<Biome> {
 
     @Override
     public boolean isNonBasic() {
-        return true;
+        return false;
     }
 
     @Override

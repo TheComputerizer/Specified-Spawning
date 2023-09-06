@@ -1,6 +1,7 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
 import mods.thecomputerizer.specifiedspawning.core.Constants;
+import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.scalinghealth.ScalingDifficultySelector;
@@ -9,6 +10,7 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySele
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.SpawnBlockSelector;
 import mods.thecomputerizer.specifiedspawning.world.SHHooks;
 import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
@@ -28,6 +30,7 @@ public abstract class DynamicRule extends AbstractRule {
     private final Map<SelectorType,Tuple<Integer,MutableInt>> dynamicTypeMap;
     private Set<EntityEntry> entities;
     private Set<Biome> biomes;
+    public boolean shouldLogExcessively;
 
     public DynamicRule(String groupName, List<EntitySelector> entitySelectors, Set<ISelector> dynamicSelectors) {
         super(groupName);
@@ -55,8 +58,10 @@ public abstract class DynamicRule extends AbstractRule {
     public void setup() {
         setRuleDescriptor();
         Constants.logVerbose(Level.INFO,"Setting up {} rule",this.ruleDescriptor);
-        if(Objects.isNull(this.entitySelectors) || this.entitySelectors.isEmpty())
+        if(Objects.isNull(this.entitySelectors) || this.entitySelectors.isEmpty()) {
             this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
+            this.entities.removeIf(entry -> !EntityLiving.class.isAssignableFrom(entry.getEntityClass()));
+        }
         else this.entities = getEntities(this.entitySelectors);
         if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty())
             this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
@@ -73,11 +78,12 @@ public abstract class DynamicRule extends AbstractRule {
 
     public Set<Biome.SpawnListEntry> apply() {
         Set<Biome.SpawnListEntry> ret = new HashSet<>();
-        for(Biome biome : this.biomes) ret.addAll(apply(biome));
+        Collection<SpawnGroup> groups = getSpawnGroups();
+        for(Biome biome : this.biomes) ret.addAll(apply(biome,groups));
         return ret;
     }
 
-    protected abstract Set<Biome.SpawnListEntry> apply(Biome biome);
+    protected abstract Set<Biome.SpawnListEntry> apply(Biome biome, Collection<SpawnGroup> groups);
 
     protected Set<EntityEntry> getEntities() {
         return this.entities;
@@ -95,8 +101,9 @@ public abstract class DynamicRule extends AbstractRule {
         for(ISelector selector : this.dynamicSelectors) {
             if(selector instanceof ScalingDifficultySelector)
                 ((ScalingDifficultySelector)selector).setPlayerData(SHHooks.getCachedData());
-            if(selector.isValid(pos, world, this.ruleDescriptor))
+            if(selector.isValid(pos, world, this.ruleDescriptor)) {
                 this.dynamicTypeMap.get(selector.getType()).getSecond().increment();
+            }
         }
         boolean ret = true;
         for(Tuple<Integer,MutableInt> typeCounter : this.dynamicTypeMap.values()) {

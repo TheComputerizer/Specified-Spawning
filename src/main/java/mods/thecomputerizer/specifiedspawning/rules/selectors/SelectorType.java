@@ -55,6 +55,7 @@ public enum SelectorType {
     public ISelector makeSelector(Table table) {
         if(Objects.isNull(table)) return null;
         if(Objects.nonNull(this.requiredMod) && !SpecifiedSpawning.isModLoaded(this.requiredMod)) return null;
+        if(!this.subTable && !table.hasVar(this.name)) return null;
         return this.creatorFunction.apply(table);
     }
 }

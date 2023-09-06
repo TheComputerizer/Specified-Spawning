@@ -40,7 +40,7 @@ public class DimensionSelector extends AbstractSelector {
 
     @Override
     public boolean isNonBasic() {
-        return false;
+        return true;
     }
 
     @Override

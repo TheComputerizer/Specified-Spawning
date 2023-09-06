@@ -3,6 +3,7 @@ package mods.thecomputerizer.specifiedspawning.rules.spawn;
 import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.mixin.access.IPotentialJockey;
 import mods.thecomputerizer.specifiedspawning.rules.SingletonRule;
+import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
@@ -12,6 +13,7 @@ import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,13 +30,15 @@ public class SingletonSpawn extends SingletonRule implements ISpawnRule {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void apply(Biome biome) {
+    protected void apply(Biome biome, Collection<SpawnGroup> groups) {
         for(EntityEntry entity : getEntities()) {
             if(EntityLiving.class.isAssignableFrom(entity.getEntityClass())) {
-                Biome.SpawnListEntry entry = new Biome.SpawnListEntry((Class<? extends EntityLiving>) entity.getEntityClass(),
-                        getEntityWeight(),getEntitySpawnCount(true), getEntitySpawnCount(false));
-                for(Jockey jockey : this.jockeys) ((IPotentialJockey)entry).specifiedspawning$addJockey(jockey);
-                biome.getSpawnableList(getSpawnGroup().getType()).add(entry);
+                for(SpawnGroup group : groups) {
+                    Biome.SpawnListEntry entry = new Biome.SpawnListEntry((Class<? extends EntityLiving>) entity.getEntityClass(),
+                            getEntityWeight(), getEntitySpawnCount(true), getEntitySpawnCount(false));
+                    for(Jockey jockey : this.jockeys) ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
+                    biome.getSpawnableList(group.getType()).add(entry);
+                }
             }
             else Constants.LOGGER.error("Cannot add entity of class {} to the biome {}! Only living entities are" +
                     "currently supported!",entity.getEntityClass(),ForgeRegistries.BIOMES.getKey(biome));

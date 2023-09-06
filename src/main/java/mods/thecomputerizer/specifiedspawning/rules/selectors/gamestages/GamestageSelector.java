@@ -65,7 +65,7 @@ public class GamestageSelector extends AbstractSelector {
 
     @Override
     public boolean isNonBasic() {
-        return false;
+        return true;
     }
 
     @Override

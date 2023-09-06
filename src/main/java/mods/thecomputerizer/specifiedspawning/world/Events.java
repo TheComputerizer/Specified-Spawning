@@ -23,7 +23,7 @@ public class Events {
                 if(!RuleManager.hasCachedRules(entry)) return false;
                 boolean ret = false;
                 for(DynamicRule rule : RuleManager.getCachedRules(entry)) {
-                    if(rule.checkSelectors(pos,world)) return rule.isRemoval();
+                    if(rule.checkSelectors(pos,world)) ret = rule.isRemoval();
                     else ret = !rule.isRemoval();
                 }
                 return ret;

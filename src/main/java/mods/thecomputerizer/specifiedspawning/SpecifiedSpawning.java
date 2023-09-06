@@ -35,11 +35,11 @@ public class SpecifiedSpawning {
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
-        SpawnManager.loadDefaults();
     }
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+        SpawnManager.loadDefaults();
         SpawnManager.buildSpawnGroups();
         RuleManager.buildRules();
     }

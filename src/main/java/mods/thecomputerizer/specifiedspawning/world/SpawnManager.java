@@ -58,6 +58,10 @@ public class SpawnManager {
         return SPAWN_GROUPS.get(groupName);
     }
 
+    public static Collection<SpawnGroup> getAllSpawnGroups() {
+        return Collections.unmodifiableCollection(SPAWN_GROUPS.values());
+    }
+
     public static int getDynamicMaxNumberOfCreature(EnumCreatureType type, int defVal) {
         SpawnGroup group = SPAWN_GROUP_ENUMS.get(type);
         return Objects.nonNull(group) ? group.getCount() : defVal;

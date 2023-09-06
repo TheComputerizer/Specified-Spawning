@@ -78,6 +78,17 @@ dependencies {
     runtimeOnly(fg.deobf("curse.maven:bookshelf-228525:${project.bookshelf_version}"))
     runtimeOnly(fg.deobf("curse.maven:had-enough-items-557549:${project.hei_version}"))
 
+    //for testing purposes
+    runtimeOnly(fg.deobf("curse.maven:aoa-311054:${project.aoa_version}"))
+    runtimeOnly(fg.deobf("curse.maven:cavern-ii-285628:${project.cavern_version}"))
+    runtimeOnly(fg.deobf("curse.maven:ender-zoo-225247:${project.enderzoo_version}"))
+    runtimeOnly(fg.deobf("curse.maven:daedalus-labyrinth-248424:${project.labyrinth_version}"))
+    runtimeOnly(fg.deobf("curse.maven:extra-utilities-225561:${project.xu2_version}"))
+    runtimeOnly(fg.deobf("curse.maven:libraryex-298965:${project.libex_version}"))
+    runtimeOnly(fg.deobf("curse.maven:lightningcraft-237422:${project.lightningcraft_version}"))
+    runtimeOnly(fg.deobf("curse.maven:netherex-248039:${project.netherex_version}"))
+    runtimeOnly("com.electronwill.night-config:json:${night_config_version}")
+
     //mixin stuff
     implementation(fg.deobf("curse.maven:mixin-booter-419286:${project.mixinbooter_version}"))
     annotationProcessor "org.spongepowered:mixin:${project.mixin_version}:processor"

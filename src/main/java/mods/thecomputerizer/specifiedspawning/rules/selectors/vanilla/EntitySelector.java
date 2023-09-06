@@ -4,6 +4,7 @@ import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ResourceSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import net.minecraft.entity.EntityLiving;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.logging.log4j.Level;
@@ -49,13 +50,13 @@ public class EntitySelector extends ResourceSelector<EntityEntry> {
 
     @Override
     public boolean isResourceValid(EntityEntry entity, String ruleDescriptor) {
-        if(Objects.isNull(entity)) return false;
+        if(Objects.isNull(entity) || !EntityLiving.class.isAssignableFrom(entity.getEntityClass())) return false;
         return isResourceValid(ForgeRegistries.ENTITIES.getKey(entity),"entity",ruleDescriptor);
     }
 
     @Override
     public boolean isNonBasic() {
-        return true;
+        return false;
     }
 
     @Override

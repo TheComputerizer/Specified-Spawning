@@ -10,10 +10,7 @@ import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ConfigManager {
 
@@ -64,17 +61,18 @@ public class ConfigManager {
     }
 
     private final Holder parsedConfig;
-    private final List<Holder> otherConfigs;
+    private final Map<Integer,Holder> otherConfigs;
     private final boolean moreLogging;
 
     private ConfigManager(Holder parsedConfig) {
         this.parsedConfig = parsedConfig;
-        this.otherConfigs = new ArrayList<>();
+        this.otherConfigs = new HashMap<>();
         this.moreLogging = this.parsedConfig.getValOrDefault("more_logging",false);
         collectOtherConfigs(this.parsedConfig.getValOrDefault("other_configs",new ArrayList<>()));
     }
 
     private void collectOtherConfigs(List<String> filePaths) {
+        int index = 1;
         for(String path : filePaths) {
             File file = FileUtil.generateNestedFile("config/SpecifiedSpawning/"+path+".toml",false);
             if(Objects.nonNull(file)) {
@@ -85,7 +83,10 @@ public class ConfigManager {
                     Constants.LOGGER.error("Failed to parse other config file at {}!",file.getPath(),ex);
                     holder = null;
                 }
-                if(Objects.nonNull(holder)) this.otherConfigs.add(holder);
+                if(Objects.nonNull(holder)) {
+                    this.otherConfigs.put(index,holder);
+                    index++;
+                }
             }
         }
     }
@@ -94,10 +95,26 @@ public class ConfigManager {
         return this.moreLogging;
     }
 
-    public List<Table> getTables() {
-        List<Table> ret = new ArrayList<>(this.parsedConfig.getTables().values());
-        for(Holder other : this.otherConfigs)
-            ret.addAll(other.getTables().values());
+    public Map<Integer,List<Table>> getTableMap() {
+        Map<Integer,List<Table>> ret = new HashMap<>();
+        Map<Integer,Table> tableMap = this.parsedConfig.getTables();
+        ret.put(0,new ArrayList<>(tableMap.values()));
+        int max = getMaxIndex(tableMap);
+        for(int i=1;i<=this.otherConfigs.size();i++) {
+            Holder other = this.otherConfigs.get(i);
+            if(Objects.nonNull(other)) {
+                tableMap = other.getTables();
+                ret.put(max,new ArrayList<>(tableMap.values()));
+                max = max+getMaxIndex(tableMap);
+            }
+        }
         return ret;
+    }
+
+    private int getMaxIndex(Map<Integer,Table> tableMap) {
+        int max = 1;
+        for(Integer maxIndex : tableMap.keySet())
+            if(maxIndex>max) max = maxIndex;
+        return max+1;
     }
 }

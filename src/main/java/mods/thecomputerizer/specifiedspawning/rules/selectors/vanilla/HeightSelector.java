@@ -37,7 +37,7 @@ public class HeightSelector extends AbstractSelector {
 
     @Override
     public boolean isNonBasic() {
-        return false;
+        return true;
     }
 
     @Override

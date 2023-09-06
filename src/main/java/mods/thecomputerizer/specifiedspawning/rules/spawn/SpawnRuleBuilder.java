@@ -16,8 +16,10 @@ public class SpawnRuleBuilder implements IRuleBuilder {
     private final Set<ISelector> selectorSet;
     private final String groupName;
     private final List<Table> jockeyTables;
+    private final boolean excessiveLogging;
+    private final int adjustedIndex;
 
-    public SpawnRuleBuilder(Table ruleTable) {
+    public SpawnRuleBuilder(Table ruleTable, int order) {
         this.groupName = ruleTable.getValOrDefault("group","hostile");
         this.entitySelectors = new ArrayList<>();
         for(Table entityTable : ruleTable.getTablesByName("entity"))
@@ -25,6 +27,8 @@ public class SpawnRuleBuilder implements IRuleBuilder {
         this.selectorSet = new HashSet<>();
         parseSelectors(ruleTable);
         this.jockeyTables = ruleTable.getTablesByName("jockey");
+        this.excessiveLogging = ruleTable.getValOrDefault("excessive_logging",false);
+        this.adjustedIndex = ruleTable.getAbsoluteIndex()+order;
     }
 
     private void parseSelectors(Table ruleTable) {
@@ -45,7 +49,9 @@ public class SpawnRuleBuilder implements IRuleBuilder {
 
     @Override
     public IRule build() {
-        return isBasic() ? buildBasic() : new DynamicSpawn(this.groupName,this.entitySelectors,this.selectorSet,this.jockeyTables);
+        IRule rule =  isBasic() ? buildBasic() : new DynamicSpawn(this.groupName,this.entitySelectors,this.selectorSet,this.jockeyTables);
+        rule.setOrder(this.adjustedIndex);
+        return rule;
     }
 
     private IRule buildBasic() {
@@ -60,5 +66,9 @@ public class SpawnRuleBuilder implements IRuleBuilder {
         for(ISelector selector : this.selectorSet)
             if(selector.isNonBasic()) return false;
         return true;
+    }
+
+    public void enableExcessiveLogging(DynamicSpawn rule) {
+        rule.shouldLogExcessively = this.excessiveLogging;
     }
 }

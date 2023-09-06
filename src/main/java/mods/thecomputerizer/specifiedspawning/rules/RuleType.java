@@ -8,7 +8,7 @@ import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 public enum RuleType {
 
@@ -30,9 +30,9 @@ public enum RuleType {
 
     private final boolean isBase;
     private final String ruleName;
-    private final Function<Table,IRuleBuilder> typeBuilder;
+    private final BiFunction<Table,Integer,IRuleBuilder> typeBuilder;
 
-    RuleType(boolean isBase, String ruleName, Function<Table,IRuleBuilder> typeBuilder) {
+    RuleType(boolean isBase, String ruleName, BiFunction<Table,Integer,IRuleBuilder> typeBuilder) {
         this.isBase = isBase;
         this.ruleName = ruleName;
         this.typeBuilder = typeBuilder;
@@ -42,8 +42,8 @@ public enum RuleType {
         return this.ruleName;
     }
 
-    public IRuleBuilder parseRuleBuilder(Table table) {
-        return this.typeBuilder.apply(table);
+    public IRuleBuilder parseRuleBuilder(Table table, int orderedOffset) {
+        return this.typeBuilder.apply(table, orderedOffset);
     }
 
     static {

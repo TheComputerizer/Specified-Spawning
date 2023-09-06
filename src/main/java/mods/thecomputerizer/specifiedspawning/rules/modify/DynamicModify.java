@@ -12,6 +12,7 @@ import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,36 +33,38 @@ public class DynamicModify extends DynamicRule implements IModifyRule {
     }
 
     @Override
-    protected Set<Biome.SpawnListEntry> apply(Biome biome) {
+    protected Set<Biome.SpawnListEntry> apply(Biome biome, Collection<SpawnGroup> groups) {
         Set<Biome.SpawnListEntry> ret = new HashSet<>();
         for(EntityEntry entity : getEntities()) {
-            Set<Biome.SpawnListEntry> modifiedGroupEntries = new HashSet<>();
-            biome.getSpawnableList(getSpawnGroup().getType()).removeIf(entry -> {
-                if(entry.entityClass == entity.getEntityClass()) {
-                    if(this.modifySpawnCounts) {
-                        entry.minGroupCount = getEntitySpawnCount(true);
-                        entry.maxGroupCount = getEntitySpawnCount(false);
+            for(SpawnGroup group : groups) {
+                Set<Biome.SpawnListEntry> modifiedGroupEntries = new HashSet<>();
+                biome.getSpawnableList(group.getType()).removeIf(entry -> {
+                    if (entry.entityClass == entity.getEntityClass()) {
+                        if (this.modifySpawnCounts) {
+                            entry.minGroupCount = getEntitySpawnCount(true);
+                            entry.maxGroupCount = getEntitySpawnCount(false);
+                        }
+                        if (shouldChangeGroup()) {
+                            modifiedGroupEntries.add(entry);
+                            ret.add(entry);
+                            return true;
+                        } else {
+                            ((ISpawnGroupObject) entry).specifiedspawning$setSpawnGroup(group, true);
+                            for (Jockey jockey : this.jockeys)
+                                ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
+                            ret.add(entry);
+                        }
                     }
-                    if(shouldChangeGroup()) {
-                        modifiedGroupEntries.add(entry);
-                        ret.add(entry);
-                        return true;
-                    } else {
-                        ((ISpawnGroupObject)entry).specifiedspawning$setSpawnGroup(getSpawnGroup(),true);
-                        for(Jockey jockey : this.jockeys)
-                            ((IPotentialJockey)entry).specifiedspawning$addJockey(jockey);
-                        ret.add(entry);
-                    }
+                    return false;
+                });
+                SpawnGroup newGroup = SpawnManager.getSpawnGroup(this.newGroupName);
+                List<Biome.SpawnListEntry> entries = biome.getSpawnableList(newGroup.getType());
+                for (Biome.SpawnListEntry entry : modifiedGroupEntries) {
+                    ((ISpawnGroupObject) entry).specifiedspawning$setSpawnGroup(newGroup, true);
+                    for (Jockey jockey : this.jockeys)
+                        ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
+                    entries.add(entry);
                 }
-                return false;
-            });
-            SpawnGroup newGroup = SpawnManager.getSpawnGroup(this.newGroupName);
-            List<Biome.SpawnListEntry> entries = biome.getSpawnableList(newGroup.getType());
-            for(Biome.SpawnListEntry entry : modifiedGroupEntries) {
-                ((ISpawnGroupObject)entry).specifiedspawning$setSpawnGroup(newGroup,true);
-                for(Jockey jockey : this.jockeys)
-                    ((IPotentialJockey)entry).specifiedspawning$addJockey(jockey);
-                entries.add(entry);
             }
         }
         return ret;

@@ -35,7 +35,7 @@ public class LightSelector extends AbstractSelector {
 
     @Override
     public boolean isNonBasic() {
-        return false;
+        return true;
     }
 
     @Override

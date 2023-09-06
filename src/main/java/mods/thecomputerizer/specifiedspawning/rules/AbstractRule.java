@@ -15,6 +15,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,6 +23,7 @@ public abstract class AbstractRule implements IRule {
 
     protected String ruleDescriptor;
     private final String groupName;
+    private int order;
 
     protected AbstractRule(String groupName) {
         this.groupName = groupName;
@@ -31,8 +33,9 @@ public abstract class AbstractRule implements IRule {
         return this.groupName;
     }
 
-    public SpawnGroup getSpawnGroup() {
-        return SpawnManager.getSpawnGroup(this.groupName);
+    public Collection<SpawnGroup> getSpawnGroups() {
+        return this.groupName.matches("all") ? SpawnManager.getAllSpawnGroups() :
+                Collections.singleton(SpawnManager.getSpawnGroup(this.groupName));
     }
 
     protected void setRuleDescriptor() {
@@ -72,5 +75,15 @@ public abstract class AbstractRule implements IRule {
         for(BiomeSelector selector : selectors)
             ret.addAll(getBiomes(selector));
         return ret;
+    }
+
+    @Override
+    public void setOrder(int index) {
+        this.order = index;
+    }
+
+    @Override
+    public int getOrder() {
+        return this.order;
     }
 }

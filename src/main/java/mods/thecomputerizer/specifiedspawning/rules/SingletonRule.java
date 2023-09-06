@@ -1,17 +1,16 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
 import mods.thecomputerizer.specifiedspawning.core.Constants;
+import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.logging.log4j.Level;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public abstract class SingletonRule extends AbstractRule {
 
@@ -30,8 +29,10 @@ public abstract class SingletonRule extends AbstractRule {
     public void setup() {
         setRuleDescriptor();
         Constants.logVerbose(Level.INFO,"Setting up {} rule",this.ruleDescriptor);
-        if(Objects.isNull(this.entitySelectors) || this.entitySelectors.isEmpty())
+        if(Objects.isNull(this.entitySelectors) || this.entitySelectors.isEmpty()) {
             this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
+            this.entities.removeIf(entry -> !EntityLiving.class.isAssignableFrom(entry.getEntityClass()));
+        }
         else this.entities = getEntities(this.entitySelectors);
         if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty())
             this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
@@ -39,10 +40,11 @@ public abstract class SingletonRule extends AbstractRule {
     }
 
     public void apply() {
-        for(Biome biome : this.biomes) apply(biome);
+        Collection<SpawnGroup> groups = getSpawnGroups();
+        for(Biome biome : this.biomes) apply(biome,groups);
     }
 
-    protected abstract void apply(Biome biome);
+    protected abstract void apply(Biome biome, Collection<SpawnGroup> groups);
 
     protected Set<EntityEntry> getEntities() {
         return this.entities;

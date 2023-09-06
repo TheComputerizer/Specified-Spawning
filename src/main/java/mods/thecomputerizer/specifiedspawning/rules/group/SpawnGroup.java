@@ -56,6 +56,16 @@ public class SpawnGroup implements IRule, IGroupRule {
     }
 
     @Override
+    public void setOrder(int index) {
+
+    }
+
+    @Override
+    public int getOrder() {
+        return 0;
+    }
+
+    @Override
     public void setup() {
 
     }
@@ -70,7 +80,7 @@ public class SpawnGroup implements IRule, IGroupRule {
         private final boolean isAnimal;
         private final boolean isAquatic;
 
-        public Builder(Table table) {
+        public Builder(Table table, int order) {
             this.name = table.getValOrDefault("name","hostile");
             if(EnumUtil.isValidCreatureReference(this.name)) {
                 this.creatureType = EnumUtil.getOrCreateEnumType(this.name);
