@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Level;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 public class ConfigManager {
@@ -48,14 +49,26 @@ public class ConfigManager {
     public static ConfigManager INSTANCE;
 
     public static void loadSpawnGroups() {
+        URL tilURL;
         try {
-            Launch.classLoader.addURL(new File("mods/theimpossiblelibrary-1.12.2-"+Constants.TIL_VERSION+".jar").toURI().toURL());
+            tilURL = new File("mods/theimpossiblelibrary-1.12.2-"+Constants.TIL_VERSION+".jar").toURI().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException("Could not add The Impossible Library to the Class Loader >:(");
         }
+        Launch.classLoader.addURL(tilURL);
         Toml toml = TomlUtil.get(CONFIG);
         for(Toml groupToml : toml.getTables("group"))
-            new SpawnGroup.Builder(groupToml);
+            new SpawnGroup.Builder(TomlUtil.readIfExists(groupToml,"name","hostile"),
+                    groupToml.containsPrimitive("count") ?
+                            Optional.of(TomlUtil.readIfExists(groupToml,"count",0)) : Optional.empty(),
+                    optionalBool(groupToml,"peaceful"),optionalBool(groupToml,"animal"),
+                    optionalBool(groupToml,"aquatic"));
+        //Hack to avoid duplicate mod exception
+        Launch.classLoader.getSources().remove(tilURL);
+    }
+
+    private static Optional<Boolean> optionalBool(Toml group, String var) {
+        return group.containsPrimitive(var) ? Optional.of(TomlUtil.readIfExists(group,var,false)) : Optional.empty();
     }
 
     public static void loadInstance() {

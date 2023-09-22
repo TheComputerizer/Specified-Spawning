@@ -1,9 +1,7 @@
 package mods.thecomputerizer.specifiedspawning.rules.group;
 
-import mods.thecomputerizer.shadowed.moandjiezana.toml.Toml;
 import mods.thecomputerizer.specifiedspawning.rules.IRule;
 import mods.thecomputerizer.specifiedspawning.rules.IRuleBuilder;
-import mods.thecomputerizer.theimpossiblelibrary.util.file.TomlUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EnumCreatureType;
 
@@ -15,7 +13,6 @@ import java.util.Optional;
 public class SpawnGroup implements IRule, IGroupRule {
 
     private static final List<Builder> BUILDERS = new ArrayList<>();
-    private static boolean canBuild = true;
 
     public static List<Builder> getBuilders() {
         return Collections.unmodifiableList(BUILDERS);
@@ -80,19 +77,27 @@ public class SpawnGroup implements IRule, IGroupRule {
 
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static class Builder implements IRuleBuilder {
 
-        private final Toml table;
         private final String name;
+        private final Optional<Integer> potentialCount;
+        private final Optional<Boolean> potentialPeaceful;
+        private final Optional<Boolean> potentialAnimal;
+        private final Optional<Boolean> potentialAquatic;
         private EnumCreatureType creatureType;
         private int count;
         private boolean isPeaceful;
         private boolean isAnimal;
         private boolean isAquatic;
 
-        public Builder(Toml table) {
-            this.name = TomlUtil.readIfExists(table,"name","hostile");
-            this.table = table;
+        public Builder(String name, Optional<Integer> count, Optional<Boolean> isPeaceful, Optional<Boolean> isAnimal,
+                       Optional<Boolean> isAquatic) {
+            this.name = name;
+            this.potentialCount = count;
+            this.potentialPeaceful = isPeaceful;
+            this.potentialAnimal = isAnimal;
+            this.potentialAquatic = isAquatic;
             BUILDERS.add(this);
         }
 
@@ -101,7 +106,10 @@ public class SpawnGroup implements IRule, IGroupRule {
          */
         public Builder(String name) {
             this.name = name;
-            this.table = null;
+            this.potentialCount = Optional.empty();
+            this.potentialPeaceful = Optional.empty();
+            this.potentialAnimal = Optional.empty();
+            this.potentialAquatic = Optional.empty();
         }
 
         @Override
@@ -116,8 +124,7 @@ public class SpawnGroup implements IRule, IGroupRule {
         }
 
         public Optional<Integer> getCount() {
-            return this.table.containsPrimitive("count") ?
-                    Optional.of(TomlUtil.readIfExists(this.table,"count",0)) : Optional.empty();
+            return this.potentialCount;
         }
 
         public void setCount(int count) {
@@ -125,8 +132,7 @@ public class SpawnGroup implements IRule, IGroupRule {
         }
 
         public Optional<Boolean> getPeaceful() {
-            return this.table.containsPrimitive("peaceful") ?
-                    Optional.of(TomlUtil.readIfExists(this.table,"peaceful",false)) : Optional.empty();
+            return this.potentialPeaceful;
         }
 
         public void setPeaceful(boolean isPeaceful) {
@@ -134,8 +140,7 @@ public class SpawnGroup implements IRule, IGroupRule {
         }
 
         public Optional<Boolean> getAnimal() {
-            return this.table.containsPrimitive("animal") ?
-                    Optional.of(TomlUtil.readIfExists(this.table,"animal",false)) : Optional.empty();
+            return this.potentialAnimal;
         }
 
         public void setAnimal(boolean isAnimal) {
@@ -143,8 +148,7 @@ public class SpawnGroup implements IRule, IGroupRule {
         }
 
         public Optional<Boolean> getAquatic() {
-            return this.table.containsPrimitive("aquatic") ?
-                    Optional.of(TomlUtil.readIfExists(this.table,"aquatic",false)) : Optional.empty();
+            return this.potentialAquatic;
         }
 
         public void setAquatic(boolean isAquatic) {
