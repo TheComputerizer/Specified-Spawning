@@ -1,14 +1,18 @@
 package mods.thecomputerizer.specifiedspawning.core;
 
+import mods.thecomputerizer.shadowed.moandjiezana.toml.Toml;
+import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Holder;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.TomlPart;
 import mods.thecomputerizer.theimpossiblelibrary.util.file.FileUtil;
 import mods.thecomputerizer.theimpossiblelibrary.util.file.TomlUtil;
+import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 
 public class ConfigManager {
@@ -42,6 +46,17 @@ public class ConfigManager {
     }
 
     public static ConfigManager INSTANCE;
+
+    public static void loadSpawnGroups() {
+        try {
+            Launch.classLoader.addURL(new File("mods/theimpossiblelibrary-1.12.2-"+Constants.TIL_VERSION+".jar").toURI().toURL());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Could not add The Impossible Library to the Class Loader >:(");
+        }
+        Toml toml = TomlUtil.get(CONFIG);
+        for(Toml groupToml : toml.getTables("group"))
+            new SpawnGroup.Builder(groupToml);
+    }
 
     public static void loadInstance() {
         try {

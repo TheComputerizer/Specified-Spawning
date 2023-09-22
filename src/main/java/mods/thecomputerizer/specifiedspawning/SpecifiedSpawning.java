@@ -22,7 +22,10 @@ public class SpecifiedSpawning {
     private static final Set<String> LOADED_MODS = Collections.synchronizedSet(new HashSet<>());
     public static boolean RULES_BUILT = false;
 
-    public SpecifiedSpawning() {}
+    public SpecifiedSpawning() {
+        ConfigManager.loadInstance();
+        RuleManager.parseRuleTables();
+    }
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {

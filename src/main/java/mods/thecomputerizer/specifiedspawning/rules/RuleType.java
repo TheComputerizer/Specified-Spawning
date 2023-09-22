@@ -1,6 +1,5 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
-import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.rules.modify.ModifyRuleBuilder;
 import mods.thecomputerizer.specifiedspawning.rules.remove.RemoveRuleBuilder;
 import mods.thecomputerizer.specifiedspawning.rules.spawn.SpawnRuleBuilder;
@@ -14,8 +13,7 @@ public enum RuleType {
 
     SPAWN(true,"spawn",SpawnRuleBuilder::new),
     MODIFY(true,"modify",ModifyRuleBuilder::new),
-    REMOVE(true,"remove",RemoveRuleBuilder::new),
-    GROUP(true,"group",SpawnGroup.Builder::new);
+    REMOVE(true,"remove",RemoveRuleBuilder::new);
 
     private static final Map<String, RuleType> BASE_RULES = new HashMap<>();
     private static final Map<String, RuleType> BY_NAME = new HashMap<>();

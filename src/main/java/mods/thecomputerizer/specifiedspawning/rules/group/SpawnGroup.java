@@ -1,8 +1,9 @@
 package mods.thecomputerizer.specifiedspawning.rules.group;
 
+import mods.thecomputerizer.shadowed.moandjiezana.toml.Toml;
 import mods.thecomputerizer.specifiedspawning.rules.IRule;
 import mods.thecomputerizer.specifiedspawning.rules.IRuleBuilder;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.util.file.TomlUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EnumCreatureType;
 
@@ -81,7 +82,7 @@ public class SpawnGroup implements IRule, IGroupRule {
 
     public static class Builder implements IRuleBuilder {
 
-        private final Table table;
+        private final Toml table;
         private final String name;
         private EnumCreatureType creatureType;
         private int count;
@@ -89,8 +90,8 @@ public class SpawnGroup implements IRule, IGroupRule {
         private boolean isAnimal;
         private boolean isAquatic;
 
-        public Builder(Table table, int order) {
-            this.name = table.getValOrDefault("name","hostile");
+        public Builder(Toml table) {
+            this.name = TomlUtil.readIfExists(table,"name","hostile");
             this.table = table;
             BUILDERS.add(this);
         }
@@ -115,8 +116,8 @@ public class SpawnGroup implements IRule, IGroupRule {
         }
 
         public Optional<Integer> getCount() {
-            return this.table.hasVar("count") ?
-                    Optional.of(this.table.getValOrDefault("count",0)) : Optional.empty();
+            return this.table.containsPrimitive("count") ?
+                    Optional.of(TomlUtil.readIfExists(this.table,"count",0)) : Optional.empty();
         }
 
         public void setCount(int count) {
@@ -124,8 +125,8 @@ public class SpawnGroup implements IRule, IGroupRule {
         }
 
         public Optional<Boolean> getPeaceful() {
-            return this.table.hasVar("peaceful") ?
-                    Optional.of(this.table.getValOrDefault("peaceful",false)) : Optional.empty();
+            return this.table.containsPrimitive("peaceful") ?
+                    Optional.of(TomlUtil.readIfExists(this.table,"peaceful",false)) : Optional.empty();
         }
 
         public void setPeaceful(boolean isPeaceful) {
@@ -133,8 +134,8 @@ public class SpawnGroup implements IRule, IGroupRule {
         }
 
         public Optional<Boolean> getAnimal() {
-            return this.table.hasVar("animal") ?
-                    Optional.of(this.table.getValOrDefault("animal",false)) : Optional.empty();
+            return this.table.containsPrimitive("animal") ?
+                    Optional.of(TomlUtil.readIfExists(this.table,"animal",false)) : Optional.empty();
         }
 
         public void setAnimal(boolean isAnimal) {
@@ -142,8 +143,8 @@ public class SpawnGroup implements IRule, IGroupRule {
         }
 
         public Optional<Boolean> getAquatic() {
-            return this.table.hasVar("aquatic") ?
-                    Optional.of(this.table.getValOrDefault("aquatic",false)) : Optional.empty();
+            return this.table.containsPrimitive("aquatic") ?
+                    Optional.of(TomlUtil.readIfExists(this.table,"aquatic",false)) : Optional.empty();
         }
 
         public void setAquatic(boolean isAquatic) {

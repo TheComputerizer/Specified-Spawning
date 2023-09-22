@@ -1,6 +1,5 @@
 package mods.thecomputerizer.specifiedspawning.core;
 
-import mods.thecomputerizer.specifiedspawning.rules.RuleManager;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import zone.rong.mixinbooter.IEarlyMixinLoader;
 
@@ -13,8 +12,7 @@ public class CorePlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     static {
         Constants.LOGGER.info("Loading core plugin");
-        ConfigManager.loadInstance();
-        RuleManager.parseRuleTables();
+        ConfigManager.loadSpawnGroups();
     }
 
     @Override
