@@ -2,14 +2,23 @@ package mods.thecomputerizer.specifiedspawning.rules.group;
 
 import mods.thecomputerizer.specifiedspawning.rules.IRule;
 import mods.thecomputerizer.specifiedspawning.rules.IRuleBuilder;
-import mods.thecomputerizer.specifiedspawning.util.EnumUtil;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EnumCreatureType;
-import net.minecraft.entity.passive.EntityWaterMob;
-import net.minecraft.entity.passive.IAnimals;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public class SpawnGroup implements IRule, IGroupRule {
+
+    private static final List<Builder> BUILDERS = new ArrayList<>();
+    private static boolean canBuild = true;
+
+    public static List<Builder> getBuilders() {
+        return Collections.unmodifiableList(BUILDERS);
+    }
 
     private final EnumCreatureType type;
     private final int count;
@@ -18,13 +27,13 @@ public class SpawnGroup implements IRule, IGroupRule {
     private final boolean isAnimal;
     private final boolean isAquatic;
 
-    private SpawnGroup(EnumCreatureType type, int count, int weight, boolean peaceful, boolean animal, boolean aquatic) {
+    private SpawnGroup(EnumCreatureType type, int count, boolean isPeaceful, boolean isAnimal, boolean isAquatic) {
         this.type = type;
         this.count = count;
-        this.weight = weight;
-        this.isPeaceful = peaceful;
-        this.isAnimal = animal;
-        this.isAquatic = aquatic;
+        this.weight = 100;
+        this.isPeaceful = isPeaceful;
+        this.isAnimal = isAnimal;
+        this.isAquatic = isAquatic;
     }
 
     public EnumCreatureType getType() {
@@ -72,53 +81,77 @@ public class SpawnGroup implements IRule, IGroupRule {
 
     public static class Builder implements IRuleBuilder {
 
+        private final Table table;
         private final String name;
-        private final EnumCreatureType creatureType;
-        private final int count;
-        private final int weight;
-        private final boolean isPeaceful;
-        private final boolean isAnimal;
-        private final boolean isAquatic;
+        private EnumCreatureType creatureType;
+        private int count;
+        private boolean isPeaceful;
+        private boolean isAnimal;
+        private boolean isAquatic;
 
         public Builder(Table table, int order) {
             this.name = table.getValOrDefault("name","hostile");
-            if(EnumUtil.isValidCreatureReference(this.name)) {
-                this.creatureType = EnumUtil.getOrCreateEnumType(this.name);
-                this.count = table.getValOrDefault("count",this.creatureType.getMaxNumberOfCreature());
-                this.weight = table.getValOrDefault("weight",100);
-                this.isPeaceful = table.getValOrDefault("peaceful",this.creatureType.getPeacefulCreature());
-                this.isAnimal = table.getValOrDefault("animal",this.creatureType.getAnimal());
-                this.isAquatic = table.getValOrDefault("aquatic",EntityWaterMob.class.isAssignableFrom(this.creatureType.getCreatureClass()));
-            } else {
-                this.count = table.getValOrDefault("count",20);
-                this.weight = table.getValOrDefault("weight",100);
-                this.isPeaceful = table.getValOrDefault("peaceful",false);
-                this.isAnimal = table.getValOrDefault("animal",false);
-                this.isAquatic = table.getValOrDefault("aquatic",false);
-                this.creatureType = EnumUtil.makeNewEnumCreatureType(this.name,IAnimals.class,this.count,
-                        this.isAquatic ? Material.WATER : Material.AIR,this.isPeaceful,this.isAnimal);
-            }
+            this.table = table;
+            BUILDERS.add(this);
         }
 
         /**
-         * Used internally to convert the vanilla EnumCreatureType values
+         * Called for default unused spawn groups
          */
-        public Builder(String name, EnumCreatureType type) {
+        public Builder(String name) {
             this.name = name;
-            this.creatureType = type;
-            this.count = this.creatureType.getMaxNumberOfCreature();
-            this.weight = 100-this.count;
-            this.isPeaceful = this.creatureType.getPeacefulCreature();
-            this.isAnimal = this.creatureType.getAnimal();
-            this.isAquatic = EntityWaterMob.class.isAssignableFrom(this.creatureType.getCreatureClass());
+            this.table = null;
         }
+
+        @Override
+        public void parseSelectors() {}
 
         public String getName() {
             return this.name;
         }
 
+        public void setCreatureType(EnumCreatureType type) {
+            this.creatureType = type;
+        }
+
+        public Optional<Integer> getCount() {
+            return this.table.hasVar("count") ?
+                    Optional.of(this.table.getValOrDefault("count",0)) : Optional.empty();
+        }
+
+        public void setCount(int count) {
+            this.count = count;
+        }
+
+        public Optional<Boolean> getPeaceful() {
+            return this.table.hasVar("peaceful") ?
+                    Optional.of(this.table.getValOrDefault("peaceful",false)) : Optional.empty();
+        }
+
+        public void setPeaceful(boolean isPeaceful) {
+            this.isPeaceful = isPeaceful;
+        }
+
+        public Optional<Boolean> getAnimal() {
+            return this.table.hasVar("animal") ?
+                    Optional.of(this.table.getValOrDefault("animal",false)) : Optional.empty();
+        }
+
+        public void setAnimal(boolean isAnimal) {
+            this.isAnimal = isAnimal;
+        }
+
+        public Optional<Boolean> getAquatic() {
+            return this.table.hasVar("aquatic") ?
+                    Optional.of(this.table.getValOrDefault("aquatic",false)) : Optional.empty();
+        }
+
+        public void setAquatic(boolean isAquatic) {
+            this.isAquatic = isAquatic;
+        }
+
         public SpawnGroup build() {
-            return new SpawnGroup(this.creatureType,this.count,this.weight,this.isPeaceful,this.isAnimal,this.isAquatic);
+            return new SpawnGroup(this.creatureType,this.count,this.isPeaceful,this.isAnimal,this.isAquatic);
         }
     }
 }

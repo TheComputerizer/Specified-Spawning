@@ -72,4 +72,9 @@ public class GamestageSelector extends AbstractSelector {
     public SelectorType getType() {
         return SelectorType.GAMESTAGE;
     }
+
+    @Override
+    public String toString() {
+        return "Gamestage Selector ("+TextUtil.arrayToString(" ",this.stageNames.toArray())+")";
+    }
 }

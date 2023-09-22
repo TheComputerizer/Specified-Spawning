@@ -1,9 +1,5 @@
-package mods.thecomputerizer.specifiedspawning.world;
+package mods.thecomputerizer.specifiedspawning.core;
 
-import mods.thecomputerizer.specifiedspawning.core.Constants;
-import mods.thecomputerizer.specifiedspawning.rules.IRuleBuilder;
-import mods.thecomputerizer.specifiedspawning.rules.RuleManager;
-import mods.thecomputerizer.specifiedspawning.rules.RuleType;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.util.ThreadSafety;
 import net.minecraft.entity.Entity;
@@ -16,6 +12,8 @@ import java.util.*;
 
 public class SpawnManager {
 
+    private static final Map<String,EnumCreatureType> EXISTING_CREATURE_TYPES = ThreadSafety.newMap(HashMap::new);
+    private static final Map<EnumCreatureType,SpawnGroup.Builder> BUILDERS_BY_TYPE = ThreadSafety.newMap(HashMap::new);
     private static final Map<String, SpawnGroup> SPAWN_GROUPS = ThreadSafety.newMap(HashMap::new);
     private static final Map<EnumCreatureType, SpawnGroup> SPAWN_GROUP_ENUMS = ThreadSafety.newMap(HashMap::new);
     private static final Map<Biome,Map<EnumCreatureType,List<Biome.SpawnListEntry>>> DEFAULT_SPAWN_ENTRIES = ThreadSafety.newMap(HashMap::new);
@@ -32,28 +30,34 @@ public class SpawnManager {
         }
     }
 
-    public static void loadDefaultSpawnGroups() {
-        RuleManager.addDefaultGroups(new SpawnGroup.Builder("hostile",EnumCreatureType.MONSTER),
-                new SpawnGroup.Builder("passive",EnumCreatureType.CREATURE),
-                new SpawnGroup.Builder("aquatic",EnumCreatureType.WATER_CREATURE),
-                new SpawnGroup.Builder("ambient",EnumCreatureType.AMBIENT));
+    public static void addExistingCreatureType(String name, EnumCreatureType type) {
+        EXISTING_CREATURE_TYPES.put(name,type);
     }
 
-    public static void loadDefaults() {
-        loadDefaultSpawnGroups();
-        loadDefaultSpawnEntries();
+    public static boolean isExistingCreatureType(String name) {
+        return EXISTING_CREATURE_TYPES.containsKey(name);
+    }
+
+    public static EnumCreatureType getExistingCreatureType(String name) {
+        return EXISTING_CREATURE_TYPES.get(name);
+    }
+
+    public static void setTypeBuilder(EnumCreatureType type, SpawnGroup.Builder builder) {
+        BUILDERS_BY_TYPE.put(type,builder);
+    }
+
+    public static boolean hasBuilder(EnumCreatureType type) {
+        return BUILDERS_BY_TYPE.containsKey(type);
     }
 
     public static void buildSpawnGroups() {
-        for(IRuleBuilder b : RuleManager.RULE_BUILDERS.get(RuleType.GROUP)) {
-            SpawnGroup.Builder builder = (SpawnGroup.Builder)b;
+        for(SpawnGroup.Builder builder : BUILDERS_BY_TYPE.values()) {
             Constants.logVerbose(Level.INFO,"Building spawn group '{}'",builder.getName());
             SpawnGroup group = builder.build();
             SPAWN_GROUPS.put(builder.getName(),group);
             SPAWN_GROUP_ENUMS.put(group.getType(),group);
         }
     }
-
     public static SpawnGroup getSpawnGroup(String groupName) {
         return SPAWN_GROUPS.get(groupName);
     }
@@ -77,7 +81,6 @@ public class SpawnManager {
                 biome.getSpawnableList(type).addAll(spawnEntries);
             }
         }
-        SPAWN_GROUPS.clear();
         CREATURE_TYPE_MAP.clear();
     }
 }

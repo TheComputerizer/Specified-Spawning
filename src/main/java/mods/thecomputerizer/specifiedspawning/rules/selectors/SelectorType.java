@@ -58,4 +58,9 @@ public enum SelectorType {
         if(!this.subTable && !table.hasVar(this.name)) return null;
         return this.creatorFunction.apply(table);
     }
+
+    @Override
+    public String toString() {
+        return this.subTable ? "["+this.name+"]" : this.name;
+    }
 }

@@ -1,6 +1,7 @@
 package mods.thecomputerizer.specifiedspawning.mixin.mixins.vanilla;
 
 import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
+import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -9,6 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Mixin(value = Entity.class, remap = false)
@@ -37,5 +40,16 @@ public abstract class MixinEntity implements ISpawnGroupObject {
     public void specifiedspawning$setSpawnGroup(SpawnGroup group, boolean isModifiedSpawn) {
         this.specifiedspawning$spawnGroup = group;
         this.specifiedspawning$isModifiedSpawn = isModifiedSpawn;
+    }
+
+    @Override
+    public void specifiedspawning$addDynamicRule(DynamicRule rule) {}
+
+    @Override
+    public void specifiedspawning$sortRules() {}
+
+    @Override
+    public List<DynamicRule> specifiedspawning$getDynamicRules() {
+        return new ArrayList<>();
     }
 }

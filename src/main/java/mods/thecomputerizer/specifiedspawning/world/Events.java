@@ -2,8 +2,8 @@ package mods.thecomputerizer.specifiedspawning.world;
 
 import mods.thecomputerizer.specifiedspawning.SpecifiedSpawning;
 import mods.thecomputerizer.specifiedspawning.core.Constants;
+import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
 import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
-import mods.thecomputerizer.specifiedspawning.rules.RuleManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.event.world.WorldEvent;
@@ -20,11 +20,11 @@ public class Events {
             BlockPos pos = ev.getPos();
             if(SpecifiedSpawning.isModLoaded("scalingdifficulty")) SHHooks.cachePlayerData(pos,world);
             ev.getList().removeIf(entry -> {
-                if(!RuleManager.hasCachedRules(entry)) return false;
                 boolean ret = false;
-                for(DynamicRule rule : RuleManager.getCachedRules(entry)) {
+                for(DynamicRule rule : ((ISpawnGroupObject)entry).specifiedspawning$getDynamicRules()) {
                     if(rule.checkSelectors(pos,world)) ret = rule.isRemoval();
                     else ret = !rule.isRemoval();
+                    if(rule.returnImmediately) return ret;
                 }
                 return ret;
             });

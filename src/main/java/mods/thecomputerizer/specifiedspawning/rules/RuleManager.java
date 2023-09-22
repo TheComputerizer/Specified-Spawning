@@ -1,20 +1,21 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
-import mods.thecomputerizer.specifiedspawning.ConfigManager;
+import mods.thecomputerizer.specifiedspawning.core.ConfigManager;
 import mods.thecomputerizer.specifiedspawning.core.Constants;
-import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
+import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
 import mods.thecomputerizer.specifiedspawning.rules.spawn.DynamicSpawn;
 import mods.thecomputerizer.specifiedspawning.rules.spawn.SpawnRuleBuilder;
 import mods.thecomputerizer.specifiedspawning.util.ThreadSafety;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.init.Biomes;
 import net.minecraft.world.biome.Biome;
 import org.apache.logging.log4j.Level;
 
 import java.util.*;
 
 public class RuleManager {
-    public static final Map<RuleType,HashSet<IRuleBuilder>> RULE_BUILDERS = ThreadSafety.newMap(HashMap::new);
-    public static final Map<Biome.SpawnListEntry,List<DynamicRule>> DYNAMIC_RULE_MAP = ThreadSafety.newMap(HashMap::new);
+    public static final Map<RuleType,Set<IRuleBuilder>> RULE_BUILDERS = ThreadSafety.newMap(HashMap::new);
 
     public static void parseRuleTables() {
         for(Map.Entry<Integer,List<Table>> tablesEntry : ConfigManager.INSTANCE.getTableMap().entrySet()) {
@@ -32,16 +33,18 @@ public class RuleManager {
         }
     }
 
-    public static void addDefaultGroups(SpawnGroup.Builder ... builders) {
-        RULE_BUILDERS.putIfAbsent(RuleType.GROUP,new HashSet<>());
-        RULE_BUILDERS.get(RuleType.GROUP).addAll(Arrays.asList(builders));
+    public static void parseRuleSelectors() {
+        for(Set<IRuleBuilder> builderSet : RULE_BUILDERS.values())
+            for(IRuleBuilder builder : builderSet)
+                builder.parseSelectors();
     }
 
     public static void buildRules() {
         Constants.logVerbose(Level.INFO,"Building rules from {} known types",RULE_BUILDERS.size());
-        for(Map.Entry<RuleType,HashSet<IRuleBuilder>> typeEntry : RULE_BUILDERS.entrySet()) {
+        Set<Biome.SpawnListEntry> toSort = new HashSet<>();
+        for(Map.Entry<RuleType,Set<IRuleBuilder>> typeEntry : RULE_BUILDERS.entrySet()) {
             String ruleName = typeEntry.getKey().getRuleName();
-            HashSet<IRuleBuilder> builders = typeEntry.getValue();
+            Set<IRuleBuilder> builders = typeEntry.getValue();
             Constants.logVerbose(Level.INFO,"Building {} rules from rule type '{}'",builders.size(),ruleName);
             for(IRuleBuilder builder : builders) {
                 IRule rule = builder.build();
@@ -51,28 +54,46 @@ public class RuleManager {
                 else if(rule instanceof DynamicRule) {
                     DynamicRule dynamic = ((DynamicRule)rule);
                     Set<Biome.SpawnListEntry> entries = dynamic.apply();
-                    Constants.logVerbose(Level.DEBUG,"Assigning {} rule to {} spawn entries",dynamic.ruleDescriptor,entries.size());
+                    Constants.logVerbose(Level.DEBUG,"Assigning {} rule to {} spawn entries",dynamic.toString(),entries.size());
                     for(Biome.SpawnListEntry entry : entries) {
-                        DYNAMIC_RULE_MAP.putIfAbsent(entry,new ArrayList<>());
-                        DYNAMIC_RULE_MAP.get(entry).add(dynamic);
+                        ((ISpawnGroupObject)entry).specifiedspawning$addDynamicRule(dynamic);
+                        toSort.add(entry);
                     }
                 }
             }
         }
-        for(List<DynamicRule> cachedRules : DYNAMIC_RULE_MAP.values())
-            cachedRules.sort(Comparator.comparingInt(IRule::getOrder));
+        for(Biome.SpawnListEntry entry : toSort)
+            ((ISpawnGroupObject)entry).specifiedspawning$sortRules();
+        testSpecificBiome();
+        testEnumIterator();
     }
 
-    public static boolean hasCachedRules(Biome.SpawnListEntry entry) {
-        return DYNAMIC_RULE_MAP.containsKey(entry);
+    public static void testSpecificBiome() {
+        if(ConfigManager.INSTANCE.isMoreLogging()) {
+            Constants.LOGGER.debug("Testing spawn entries for hell biome");
+            for(EnumCreatureType creature : EnumCreatureType.values()) {
+                Constants.LOGGER.debug("Testing spawn entries for creature type {}",creature);
+                for(Biome.SpawnListEntry entry : Biomes.HELL.getSpawnableList(creature)) {
+                    List<DynamicRule> rules = ((ISpawnGroupObject)entry).specifiedspawning$getDynamicRules();
+                    if(!rules.isEmpty())
+                        Constants.LOGGER.debug("Entry for class {} has {} cached rules",
+                            entry.entityClass.getName(),rules.size());
+                    else Constants.LOGGER.debug("Entry for class {} has 0 cached rules",entry.entityClass.getName());
+                }
+            }
+        }
     }
 
-    public static List<DynamicRule> getCachedRules(Biome.SpawnListEntry entry) {
-        return DYNAMIC_RULE_MAP.get(entry);
+    public static void testEnumIterator() {
+        if(ConfigManager.INSTANCE.isMoreLogging()) {
+            Constants.LOGGER.debug("Testing enum iterator");
+            for(EnumCreatureType type : EnumCreatureType.values()) {
+                Constants.LOGGER.debug("Enum Value - {}",type);
+            }
+        }
     }
 
     public static void clear() {
-        DYNAMIC_RULE_MAP.clear();
         RULE_BUILDERS.clear();
     }
 }

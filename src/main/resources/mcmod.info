@@ -8,6 +8,6 @@
     "url": "https://www.curseforge.com/minecraft/mc-mods/specified-spawning",
     "authorList": ["The_Computerizer"],
     "logoFile": "specifiedspawning.png",
-    "dependencies": ["theimpossiblelibrary"]
+    "dependencies": [ "mixinbooter", "theimpossiblelibrary" ]
   }
 ]

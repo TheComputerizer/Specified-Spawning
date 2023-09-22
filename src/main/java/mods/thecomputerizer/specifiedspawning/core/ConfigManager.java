@@ -1,6 +1,5 @@
-package mods.thecomputerizer.specifiedspawning;
+package mods.thecomputerizer.specifiedspawning.core;
 
-import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Holder;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.TomlPart;

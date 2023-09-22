@@ -1,17 +1,15 @@
 package mods.thecomputerizer.specifiedspawning;
 
+import mods.thecomputerizer.specifiedspawning.core.ConfigManager;
 import mods.thecomputerizer.specifiedspawning.core.Constants;
+import mods.thecomputerizer.specifiedspawning.core.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.rules.RuleManager;
-import mods.thecomputerizer.specifiedspawning.util.EnumUtil;
 import mods.thecomputerizer.specifiedspawning.world.ReloadCommand;
 import mods.thecomputerizer.specifiedspawning.world.SHHooks;
-import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.*;
+import org.apache.logging.log4j.Level;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,42 +20,49 @@ public class SpecifiedSpawning {
 
     private static final Set<String> CHECKED_MODS = Collections.synchronizedSet(new HashSet<>());
     private static final Set<String> LOADED_MODS = Collections.synchronizedSet(new HashSet<>());
+    public static boolean RULES_BUILT = false;
 
-    public SpecifiedSpawning() {
-        EnumUtil.buildDefaultConstructorTypes();
-        ConfigManager.loadInstance();
-    }
+    public SpecifiedSpawning() {}
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        RuleManager.parseRuleTables();
+        RuleManager.parseRuleSelectors();
     }
 
     @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
-    }
+    public void init(FMLInitializationEvent event) {}
 
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
-        SpawnManager.loadDefaults();
+        SpawnManager.loadDefaultSpawnEntries();
         SpawnManager.buildSpawnGroups();
+    }
+
+    @Mod.EventHandler
+    public void loadComplete(FMLLoadCompleteEvent event) {
         RuleManager.buildRules();
+        RULES_BUILT = true;
     }
 
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
         event.registerServerCommand(new ReloadCommand());
+        RuleManager.testSpecificBiome();
+        RuleManager.testEnumIterator();
     }
 
     public static void reload() {
+        RULES_BUILT = false;
+        Constants.logVerbose(Level.INFO,"Reloading configs for world");
         if(isModLoaded("scalingdifficulty")) SHHooks.setLoadedScalingDifficultySelector(false);
         SpawnManager.clear();
         RuleManager.clear();
         ConfigManager.loadInstance();
         RuleManager.parseRuleTables();
-        SpawnManager.loadDefaultSpawnGroups();
+        RuleManager.parseRuleSelectors();
         SpawnManager.buildSpawnGroups();
         RuleManager.buildRules();
+        RULES_BUILT = true;
     }
 
     public static boolean isModLoaded(String modid) {

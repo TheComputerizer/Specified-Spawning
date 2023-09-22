@@ -6,7 +6,7 @@ import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
-import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
+import mods.thecomputerizer.specifiedspawning.core.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.minecraft.world.biome.Biome;

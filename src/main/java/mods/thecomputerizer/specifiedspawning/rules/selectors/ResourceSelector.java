@@ -41,7 +41,7 @@ public abstract class ResourceSelector<T> extends AbstractSelector {
     }
 
     private boolean logValid(boolean result, ResourceLocation res, String fromType, String ruleDescriptor) {
-        if(result) Constants.logVerbose(Level.INFO,"Verified {} with id {} for a {} rule",fromType,res,ruleDescriptor);
+        if(result) Constants.logVerbose(Level.DEBUG,"Verified {} with id {} for a {} rule",fromType,res,ruleDescriptor);
         return result;
     }
 

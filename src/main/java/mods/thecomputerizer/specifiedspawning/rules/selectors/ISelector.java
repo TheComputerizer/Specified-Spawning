@@ -6,7 +6,6 @@ import net.minecraft.world.World;
 public interface ISelector {
 
     boolean isValid(BlockPos pos, World world, String ruleDescriptor);
-
     SelectorType getType();
     boolean isNonBasic();
 }

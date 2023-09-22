@@ -47,4 +47,9 @@ public class DimensionSelector extends AbstractSelector {
     public SelectorType getType() {
         return SelectorType.DIMENSION;
     }
+
+    @Override
+    public String toString() {
+        return "Dimension Selector ("+TextUtil.arrayToString(" ",this.validDimensions.toArray())+")";
+    }
 }

@@ -21,6 +21,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.logging.log4j.Level;
 
 import java.util.*;
+import java.util.function.Function;
 
 public abstract class DynamicRule extends AbstractRule {
 
@@ -31,6 +32,7 @@ public abstract class DynamicRule extends AbstractRule {
     private Set<EntityEntry> entities;
     private Set<Biome> biomes;
     public boolean shouldLogExcessively;
+    public boolean returnImmediately;
 
     public DynamicRule(String groupName, List<EntitySelector> entitySelectors, Set<ISelector> dynamicSelectors) {
         super(groupName);
@@ -57,7 +59,9 @@ public abstract class DynamicRule extends AbstractRule {
     @Override
     public void setup() {
         setRuleDescriptor();
-        Constants.logVerbose(Level.INFO,"Setting up {} rule",this.ruleDescriptor);
+        Constants.logVerbose(Level.INFO,"Setting up {} rule with {} dynamic selector types",this.ruleDescriptor,this.dynamicTypeMap.size());
+        logExcessiveCollection(this.dynamicTypeMap.entrySet(), entry ->
+                "(Map Entry) | Key("+entry.getKey().toString()+") | Value("+tupleToString(entry.getValue())+")");
         if(Objects.isNull(this.entitySelectors) || this.entitySelectors.isEmpty()) {
             this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
             this.entities.removeIf(entry -> !EntityLiving.class.isAssignableFrom(entry.getEntityClass()));
@@ -69,6 +73,7 @@ public abstract class DynamicRule extends AbstractRule {
         for(ISelector selector : this.dynamicSelectors)
             if(selector.getType()==SelectorType.SPAWNBLOCK)
                 cacheBlockSelector((SpawnBlockSelector)selector);
+        logExcessiveDebug("This rule is being assigned to {} unique entity entries in {} unique biomes",this.entities.size(),this.biomes.size());
     }
 
     public void cacheBlockSelector(SpawnBlockSelector selector) {
@@ -98,6 +103,7 @@ public abstract class DynamicRule extends AbstractRule {
     }
 
     public boolean checkSelectors(BlockPos pos, WorldServer world) {
+        //logExcessiveCollection(this.dynamicSelectors,Object::toString);
         for(ISelector selector : this.dynamicSelectors) {
             if(selector instanceof ScalingDifficultySelector)
                 ((ScalingDifficultySelector)selector).setPlayerData(SHHooks.getCachedData());
@@ -106,6 +112,8 @@ public abstract class DynamicRule extends AbstractRule {
             }
         }
         boolean ret = true;
+        //logExcessiveCollection(this.dynamicTypeMap.entrySet(), entry ->
+                //"(Map Entry) | Key("+entry.getKey().toString()+") | Value("+tupleToString(entry.getValue())+")");
         for(Tuple<Integer,MutableInt> typeCounter : this.dynamicTypeMap.values()) {
             MutableInt counter = typeCounter.getSecond();
             if(counter.getValue()<=0) ret = false;
@@ -114,5 +122,35 @@ public abstract class DynamicRule extends AbstractRule {
         return ret;
     }
 
+    protected String tupleToString(Tuple<?,?> tuple) {
+        return "(Tuple) | First("+tuple.getFirst()+") | Second("+tuple.getSecond()+")";
+    }
+
+    protected <E> void logExcessiveCollection(Collection<E> c, Function<E,String> entryFunc) {
+        if(this.shouldLogExcessively) {
+            Constants.logVerbose(Level.INFO,"Excessively logging collection with {} entries",c.size());
+            for (E element : c)
+                Constants.logVerbose(Level.INFO, entryFunc.apply(element));
+        }
+    }
+
+    protected void logExcessiveDebug(String msg, Object ... parameters) {
+        doExcessiveLogging(Level.DEBUG,msg,parameters);
+    }
+
+    protected void logExcessiveInfo(String msg, Object ... parameters) {
+        doExcessiveLogging(Level.INFO,msg,parameters);
+    }
+
+    private void doExcessiveLogging(Level level, String msg, Object ... parameters) {
+        if(this.shouldLogExcessively)
+            Constants.logVerbose(level,msg,parameters);
+    }
+
     public abstract boolean isRemoval();
+
+    @Override
+    public String toString() {
+        return this.ruleDescriptor;
+    }
 }

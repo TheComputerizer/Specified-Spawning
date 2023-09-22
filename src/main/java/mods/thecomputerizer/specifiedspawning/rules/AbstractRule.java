@@ -7,7 +7,7 @@ import mods.thecomputerizer.specifiedspawning.rules.remove.IRemoveRule;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ResourceSelector;
-import mods.thecomputerizer.specifiedspawning.world.SpawnManager;
+import mods.thecomputerizer.specifiedspawning.core.SpawnManager;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;

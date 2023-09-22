@@ -2,6 +2,8 @@ package mods.thecomputerizer.specifiedspawning.mixin.mixins.vanilla;
 
 import mods.thecomputerizer.specifiedspawning.mixin.access.IPotentialJockey;
 import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
+import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
+import mods.thecomputerizer.specifiedspawning.rules.IRule;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
 import net.minecraft.entity.EntityLiving;
@@ -14,17 +16,18 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
 @Mixin(value = Biome.SpawnListEntry.class, remap = false)
 public class MixinSpawnListEntry implements ISpawnGroupObject, IPotentialJockey {
 
-    @Unique
-    private SpawnGroup specifiedspawning$spawnGroup;
+    @Unique private final List<DynamicRule> specifiedspawning$assignedRules = new ArrayList<>();
 
-    @Unique
-    private boolean specifiedspawning$isModifiedSpawn;
+    @Unique private SpawnGroup specifiedspawning$spawnGroup;
+
+    @Unique private boolean specifiedspawning$isModifiedSpawn;
 
     @Unique
     private final List<Jockey> specifiedspawning$potentialJockeys = new ArrayList<>();
@@ -49,5 +52,20 @@ public class MixinSpawnListEntry implements ISpawnGroupObject, IPotentialJockey 
     @Override
     public void specifiedspawning$addJockey(Jockey jockey) {
         this.specifiedspawning$potentialJockeys.add(jockey);
+    }
+
+    @Override
+    public void specifiedspawning$addDynamicRule(DynamicRule rule) {
+        this.specifiedspawning$assignedRules.add(rule);
+    }
+
+    @Override
+    public void specifiedspawning$sortRules() {
+        this.specifiedspawning$assignedRules.sort(Comparator.comparingInt(IRule::getOrder));
+    }
+
+    @Override
+    public List<DynamicRule> specifiedspawning$getDynamicRules() {
+        return this.specifiedspawning$assignedRules;
     }
 }
