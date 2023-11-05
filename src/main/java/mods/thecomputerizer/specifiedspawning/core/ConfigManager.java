@@ -18,7 +18,7 @@ import java.util.*;
 
 public class ConfigManager {
 
-    public static final File CONFIG = getOrMakeConfigFile();
+    public static File CONFIG;
 
     public static File getOrMakeConfigFile() {
         String path = "config/"+Constants.MODID+".toml";
@@ -56,6 +56,7 @@ public class ConfigManager {
             throw new RuntimeException("Could not add The Impossible Library to the Class Loader >:(");
         }
         Launch.classLoader.addURL(tilURL);
+        CONFIG = getOrMakeConfigFile();
         Toml toml = TomlUtil.get(CONFIG);
         for(Toml groupToml : toml.getTables("group"))
             new SpawnGroup.Builder(TomlUtil.readIfExists(groupToml,"name","hostile"),
