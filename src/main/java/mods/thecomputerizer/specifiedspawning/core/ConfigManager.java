@@ -58,14 +58,21 @@ public class ConfigManager {
         Launch.classLoader.addURL(tilURL);
         CONFIG = getOrMakeConfigFile();
         Toml toml = TomlUtil.get(CONFIG);
-        for(Toml groupToml : toml.getTables("group"))
-            new SpawnGroup.Builder(TomlUtil.readIfExists(groupToml,"name","hostile"),
-                    groupToml.containsPrimitive("count") ?
-                            Optional.of(TomlUtil.readIfExists(groupToml,"count",0)) : Optional.empty(),
-                    optionalBool(groupToml,"peaceful"),optionalBool(groupToml,"animal"),
-                    optionalBool(groupToml,"aquatic"));
+        if(toml.containsTableArray("group"))
+            for(Toml groupToml : toml.getTables("group"))
+                addSpawnGroupBuilder(groupToml);
+        else if (toml.containsTable("group"))
+            addSpawnGroupBuilder(toml.getTable("group"));
         //Hack to avoid duplicate mod exception
         Launch.classLoader.getSources().remove(tilURL);
+    }
+
+    private static void addSpawnGroupBuilder(Toml groupToml) {
+        new SpawnGroup.Builder(TomlUtil.readIfExists(groupToml,"name","hostile"),
+                groupToml.containsPrimitive("count") ?
+                        Optional.of(TomlUtil.readIfExists(groupToml,"count",0)) : Optional.empty(),
+                optionalBool(groupToml,"peaceful"),optionalBool(groupToml,"animal"),
+                optionalBool(groupToml,"aquatic"));
     }
 
     private static Optional<Boolean> optionalBool(Toml group, String var) {
