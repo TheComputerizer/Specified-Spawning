@@ -51,7 +51,9 @@ public class ConfigManager {
     public static void loadSpawnGroups() {
         URL tilURL;
         try {
-            tilURL = new File("mods/theimpossiblelibrary-1.12.2-"+Constants.TIL_VERSION+".jar").toURI().toURL();
+            File file = findTILFile();
+            if(Objects.nonNull(file)) tilURL = file.toURI().toURL();
+            else throw new MalformedURLException("what");
         } catch (MalformedURLException e) {
             throw new RuntimeException("Could not add The Impossible Library to the Class Loader >:(");
         }
@@ -65,6 +67,15 @@ public class ConfigManager {
             addSpawnGroupBuilder(toml.getTable("group"));
         //Hack to avoid duplicate mod exception
         Launch.classLoader.getSources().remove(tilURL);
+    }
+
+    private static File findTILFile() {
+        File mods = new File("mods");
+        if(mods.exists()) {
+            File[] files = mods.listFiles((dir,name) -> name.startsWith("theimpossiblelibrary-1.12.2-") && name.endsWith(".jar"));
+            if(Objects.nonNull(files) && files.length>0) return files[0];
+        }
+        return null;
     }
 
     private static void addSpawnGroupBuilder(Toml groupToml) {

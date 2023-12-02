@@ -10,10 +10,9 @@ import java.util.Random;
 public class Constants {
     public static final String MODID = "specifiedspawning";
     public static final String NAME = "Specified Spawning";
-    public static final String VERSION = "0.4.3";
+    public static final String VERSION = "0.5.0";
     public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2860,);required-after:mixinbooter@[8.1,);" +
             "required-after:theimpossiblelibrary@[0.3.0,);";
-    public static final String TIL_VERSION = "0.3.0";
     public static final Random RANDOM = new Random();
     public static final Logger LOGGER = LogManager.getLogger(NAME);
 
