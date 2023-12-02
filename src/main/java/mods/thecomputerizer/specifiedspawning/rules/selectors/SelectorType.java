@@ -7,6 +7,7 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.nyx.FullmoonSelect
 import mods.thecomputerizer.specifiedspawning.rules.selectors.nyx.HarvestmoonSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.nyx.StarShowerSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.scalinghealth.ScalingDifficultySelector;
+import mods.thecomputerizer.specifiedspawning.rules.selectors.sereneseasons.SeasonSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.*;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 
@@ -27,6 +28,7 @@ public enum SelectorType {
     MOONPHASE("moonphase",true,null,MoonPhaseSelector::makeSelector),
     REGIONALDIFFICULTY("regionaldifficulty",true,null,RegionalDifficultySelector::makeSelector),
     SCALINGDIFFICULTY("scalingdifficulty",true,"scalingdifficulty",ScalingDifficultySelector::makeSelector),
+    SEASON("season",false,"sereneseasons",SeasonSelector::makeSelector),
     SPAWNBLOCK("spawnblock",true,null,SpawnBlockSelector::makeSelector),
     STARSHOWER("starshower",true,"nyx",StarShowerSelector::makeSelector),
     STRUCTURE("structure",false,null,StructureSelector::makeSelector);

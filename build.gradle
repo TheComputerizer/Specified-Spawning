@@ -75,6 +75,7 @@ dependencies {
     implementation(fg.deobf("curse.maven:netherex-248039:${project.netherex_version}"))
     implementation(fg.deobf("curse.maven:nyx-349214:${project.nyx_version}"))
     implementation(fg.deobf("curse.maven:scaling-health-248027:${project.scalinghealth_version}"))
+    implementation(fg.deobf("curse.maven:serene-seasons-291874:${project.seasons_version}"))
     implementation(fg.deobf("curse.maven:silent-lib-242998:${project.slib_version}"))
     implementation(fg.deobf("maven.modrinth:the-midnight:${project.midnight_version}"))
 

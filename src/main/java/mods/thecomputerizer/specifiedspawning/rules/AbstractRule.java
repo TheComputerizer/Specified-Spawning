@@ -14,10 +14,8 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class AbstractRule implements IRule {
 
@@ -34,8 +32,9 @@ public abstract class AbstractRule implements IRule {
     }
 
     public Collection<SpawnGroup> getSpawnGroups() {
-        return this.groupName.matches("all") ? SpawnManager.getAllSpawnGroups() :
-                Collections.singleton(SpawnManager.getSpawnGroup(this.groupName));
+        return (this.groupName.matches("all") ? SpawnManager.getAllSpawnGroups() :
+                Collections.singleton(SpawnManager.getSpawnGroup(this.groupName))).stream().filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     protected void setRuleDescriptor() {

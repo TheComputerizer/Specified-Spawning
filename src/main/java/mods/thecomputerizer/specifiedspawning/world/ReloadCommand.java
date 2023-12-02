@@ -1,30 +1,37 @@
 package mods.thecomputerizer.specifiedspawning.world;
 
+import mcp.MethodsReturnNonnullByDefault;
 import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.SpecifiedSpawning;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ReloadCommand extends CommandBase {
     @Override
-    @Nonnull
     public String getName() {
         return Constants.MODID;
     }
 
     @Override
-    @Nonnull
-    public String getUsage(@Nonnull ICommandSender sender) {
+    public String getUsage(ICommandSender sender) {
         return "Specified Spawning commands initiated";
     }
 
     @Override
-    public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args) {
+    public void execute(MinecraftServer server, ICommandSender sender, String ... args) {
         if(args.length==0) notify(sender, "help");
         else if(args[0].matches("reload")) {
             SpecifiedSpawning.reload();
@@ -38,7 +45,7 @@ public class ReloadCommand extends CommandBase {
         } else notify(sender, "help");
     }
 
-    private <T extends Enum<T>> void printEnumValues(@Nonnull ICommandSender sender, @Nonnull T[] values) {
+    private <T extends Enum<T>> void printEnumValues(ICommandSender sender, T[] values) {
         if(values.length==0) notify(sender,"test.enum.empty");
         else {
             T first = values[0];
@@ -59,5 +66,13 @@ public class ReloadCommand extends CommandBase {
 
     private String buildLang(@Nonnull String langKeyEnding) {
         return "command."+Constants.MODID+"."+langKeyEnding;
+    }
+
+    @Override
+    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
+                                          @Nullable BlockPos targetPos) {
+        if(args.length==1) return Arrays.asList("reload", "test");
+        else if(args.length==2 && args[0].matches("test")) return Collections.singletonList("enum");
+        return Collections.emptyList();
     }
 }

@@ -17,7 +17,7 @@ import java.util.Optional;
 @Mixin(EnumCreatureType.class)
 public abstract class MixinEnumCreatureType {
 
-    @Shadow(remap = false) @Final @Mutable private static EnumCreatureType[] $VALUES;
+    @Shadow @Final @Mutable private static EnumCreatureType[] $VALUES;
 
     @Shadow @Final private int maxNumberOfCreature;
 
