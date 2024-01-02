@@ -3,8 +3,10 @@ package mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla;
 import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ResourceSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
+import mods.thecomputerizer.specifiedspawning.util.AddedEnums;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLiving.SpawnPlacementType;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.logging.log4j.Level;
@@ -18,17 +20,20 @@ public class EntitySelector extends ResourceSelector<EntityEntry> {
         Constants.logVerbose(Level.DEBUG,"Making entity selector from table {}",table.getName());
         return new EntitySelector(table.getValOrDefault("inverted",false),
                 table.getValOrDefault("mod",""),table.getValOrDefault("entity",""),
-                table.getValOrDefault("matcher",""),table.getValOrDefault("min_group_size",1),
+                table.getValOrDefault("matcher",""),table.getValOrDefault("type","def"),
+                table.getValOrDefault("min_group_size",1),
                 table.getValOrDefault("max_group_size",1),table.getValOrDefault("weight",10));
     }
 
+    private final SpawnPlacementType spawnType;
     private final int minGroupSpawn;
     private final int maxGroupSpawn;
     private final int weight;
 
-    private EntitySelector(boolean isInverted, String mod, String entityID, String matcher, int minGroupSpawn,
-                           int maxGroupSpawn, int weight) {
+    private EntitySelector(boolean isInverted, String mod, String entityID, String matcher, String spawnType,
+                           int minGroupSpawn, int maxGroupSpawn, int weight) {
         super(isInverted,mod,entityID,matcher);
+        this.spawnType = AddedEnums.getSpawnType(spawnType);
         if(minGroupSpawn<=0) minGroupSpawn = 1;
         if(maxGroupSpawn<minGroupSpawn) maxGroupSpawn = minGroupSpawn;
         this.minGroupSpawn = minGroupSpawn;
@@ -42,6 +47,10 @@ public class EntitySelector extends ResourceSelector<EntityEntry> {
 
     public int getMaxGroupSpawn() {
         return maxGroupSpawn;
+    }
+
+    public SpawnPlacementType getSpawnType() {
+        return this.spawnType;
     }
 
     public int getWeight() {

@@ -10,7 +10,8 @@
     "MixinEntity",
     "MixinEntityLiving",
     "MixinEnumCreatureType",
-    "MixinSpawnListEntry"
+    "MixinSpawnListEntry",
+    "MixinWorldEntitySpawner"
   ],
   "client": []
 }

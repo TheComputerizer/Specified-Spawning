@@ -1,6 +1,7 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
 import mods.thecomputerizer.specifiedspawning.core.Constants;
+import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
@@ -11,6 +12,7 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.SpawnBlock
 import mods.thecomputerizer.specifiedspawning.world.SHHooks;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLiving.SpawnPlacementType;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
@@ -23,6 +25,7 @@ import org.apache.logging.log4j.Level;
 import java.util.*;
 import java.util.function.Function;
 
+@SuppressWarnings({"SameParameterValue", "unused"})
 public abstract class DynamicRule extends AbstractRule {
 
     private final List<EntitySelector> entitySelectors;
@@ -85,6 +88,14 @@ public abstract class DynamicRule extends AbstractRule {
         Set<Biome.SpawnListEntry> ret = new HashSet<>();
         Collection<SpawnGroup> groups = getSpawnGroups();
         for(Biome biome : this.biomes) ret.addAll(apply(biome,groups));
+        SpawnPlacementType type = null;
+        for(EntitySelector selector : this.entitySelectors) {
+            type = selector.getSpawnType();
+            if(Objects.nonNull(type)) break;
+        }
+        if(Objects.nonNull(type))
+            for(Biome.SpawnListEntry entry : ret)
+                ((ISpawnGroupObject)entry).specifiedspawning$setSpawnType(type);
         return ret;
     }
 
