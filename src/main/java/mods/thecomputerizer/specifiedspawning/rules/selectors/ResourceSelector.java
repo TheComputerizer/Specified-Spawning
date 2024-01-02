@@ -24,6 +24,11 @@ public abstract class ResourceSelector<T> extends AbstractSelector {
                 "matcher '{}'",this.mod,this.regID,this.matcher);
     }
 
+    @Override
+    public boolean isValid(BlockPos pos, World world, String ruleDescriptor) {
+        return true;
+    }
+
     protected boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
         return true;
     }
@@ -42,7 +47,7 @@ public abstract class ResourceSelector<T> extends AbstractSelector {
 
     private boolean logValid(boolean result, ResourceLocation res, String fromType, String ruleDescriptor) {
         if(result) Constants.logVerbose(Level.DEBUG,"Verified {} with id {} for a {} rule",fromType,res,ruleDescriptor);
-        return result;
+        return getValid(result);
     }
 
     private int calculateStatus(int prev,ResourceLocation res,String type,Function<ResourceLocation,Boolean> func) {

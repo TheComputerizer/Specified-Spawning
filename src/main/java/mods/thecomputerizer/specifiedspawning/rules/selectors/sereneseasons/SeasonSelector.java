@@ -1,19 +1,13 @@
 package mods.thecomputerizer.specifiedspawning.rules.selectors.sereneseasons;
 
-import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.AbstractSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
-import mods.thecomputerizer.specifiedspawning.rules.selectors.gamestages.GamestageSelector;
-import mods.thecomputerizer.specifiedspawning.util.ParsingUtils;
 import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
-import mods.thecomputerizer.theimpossiblelibrary.util.TextUtil;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.Level;
 import sereneseasons.api.season.Season;
 import sereneseasons.api.season.SeasonHelper;
 
-import java.util.List;
 import java.util.Objects;
 
 public class SeasonSelector extends AbstractSelector {
