@@ -2,6 +2,7 @@ package mods.thecomputerizer.specifiedspawning.rules.spawn;
 
 import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.mixin.access.IPotentialJockey;
+import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
 import mods.thecomputerizer.specifiedspawning.rules.SingletonRule;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelector;
@@ -37,6 +38,7 @@ public class SingletonSpawn extends SingletonRule implements ISpawnRule {
                     Biome.SpawnListEntry entry = new Biome.SpawnListEntry((Class<? extends EntityLiving>) entity.getEntityClass(),
                             getEntityWeight(), getEntitySpawnCount(true), getEntitySpawnCount(false));
                     for(Jockey jockey : this.jockeys) ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
+                    ((ISpawnGroupObject)entry).specifiedspawning$setSpawnType(getSpawnType());
                     biome.getSpawnableList(group.getType()).add(entry);
                 }
             }

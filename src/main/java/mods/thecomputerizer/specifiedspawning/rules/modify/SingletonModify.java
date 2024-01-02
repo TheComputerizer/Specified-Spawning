@@ -49,7 +49,8 @@ public class SingletonModify extends SingletonRule implements IModifyRule {
                         } else {
                             ((ISpawnGroupObject) entry).specifiedspawning$setSpawnGroup(group, true);
                             for (Jockey jockey : this.jockeys)
-                                ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
+                                ((IPotentialJockey)entry).specifiedspawning$addJockey(jockey);
+                            ((ISpawnGroupObject)entry).specifiedspawning$setSpawnType(getSpawnType());
                         }
                     }
                     return false;
@@ -58,8 +59,9 @@ public class SingletonModify extends SingletonRule implements IModifyRule {
                 List<Biome.SpawnListEntry> entries = biome.getSpawnableList(newGroup.getType());
                 for(Biome.SpawnListEntry entry : modifiedGroupEntries) {
                     ((ISpawnGroupObject) entry).specifiedspawning$setSpawnGroup(newGroup, true);
-                    for (Jockey jockey : this.jockeys)
+                    for(Jockey jockey : this.jockeys)
                         ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
+                    ((ISpawnGroupObject)entry).specifiedspawning$setSpawnType(getSpawnType());
                     entries.add(entry);
                 }
             }
