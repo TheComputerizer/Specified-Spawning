@@ -31,7 +31,8 @@ public enum SelectorType {
     SEASON("season",false,"sereneseasons",SeasonSelector::makeSelector),
     SPAWNBLOCK("spawnblock",true,null,SpawnBlockSelector::makeSelector),
     STARSHOWER("starshower",true,"nyx",StarShowerSelector::makeSelector),
-    STRUCTURE("structure",false,null,StructureSelector::makeSelector);
+    STRUCTURE("structure",false,null,StructureSelector::makeSelector),
+    WEATHER("weather",true,null,WeatherSelector::makeSelector);
 
 
     private final String name;
