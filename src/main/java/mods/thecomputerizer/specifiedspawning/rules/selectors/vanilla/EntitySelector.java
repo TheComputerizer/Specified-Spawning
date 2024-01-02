@@ -21,19 +21,22 @@ public class EntitySelector extends ResourceSelector<EntityEntry> {
         return new EntitySelector(table.getValOrDefault("inverted",false),
                 table.getValOrDefault("mod",""),table.getValOrDefault("entity",""),
                 table.getValOrDefault("matcher",""),table.getValOrDefault("type","def"),
+                table.getValOrDefault("ignoreSpawnConditions",false),
                 table.getValOrDefault("min_group_size",1),
                 table.getValOrDefault("max_group_size",1),table.getValOrDefault("weight",10));
     }
 
     private final SpawnPlacementType spawnType;
+    private final boolean ignoreSpawnConditions;
     private final int minGroupSpawn;
     private final int maxGroupSpawn;
     private final int weight;
 
     private EntitySelector(boolean isInverted, String mod, String entityID, String matcher, String spawnType,
-                           int minGroupSpawn, int maxGroupSpawn, int weight) {
+                           boolean ignoreSpawnConditions,int minGroupSpawn, int maxGroupSpawn, int weight) {
         super(isInverted,mod,entityID,matcher);
         this.spawnType = AddedEnums.getSpawnType(spawnType);
+        this.ignoreSpawnConditions = ignoreSpawnConditions;
         if(minGroupSpawn<=0) minGroupSpawn = 1;
         if(maxGroupSpawn<minGroupSpawn) maxGroupSpawn = minGroupSpawn;
         this.minGroupSpawn = minGroupSpawn;
@@ -71,5 +74,9 @@ public class EntitySelector extends ResourceSelector<EntityEntry> {
     @Override
     public SelectorType getType() {
         return SelectorType.ENTITY;
+    }
+
+    public boolean shouldIgnoreSpawnConditions() {
+        return this.ignoreSpawnConditions;
     }
 }

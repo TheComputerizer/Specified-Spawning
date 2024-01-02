@@ -47,10 +47,12 @@ public class SingletonModify extends SingletonRule implements IModifyRule {
                             modifiedGroupEntries.add(entry);
                             return true;
                         } else {
-                            ((ISpawnGroupObject) entry).specifiedspawning$setSpawnGroup(group, true);
+                            ISpawnGroupObject obj = (ISpawnGroupObject)entry;
+                            obj.specifiedspawning$setSpawnGroup(group, true);
                             for (Jockey jockey : this.jockeys)
                                 ((IPotentialJockey)entry).specifiedspawning$addJockey(jockey);
-                            ((ISpawnGroupObject)entry).specifiedspawning$setSpawnType(getSpawnType());
+                            obj.specifiedspawning$setSpawnType(getSpawnType());
+                            obj.specifiedspawning$setIgnoreSpawnConditions(shouldIgnoreSpawnConditions());
                         }
                     }
                     return false;
@@ -58,10 +60,12 @@ public class SingletonModify extends SingletonRule implements IModifyRule {
                 SpawnGroup newGroup = SpawnManager.getSpawnGroup(this.newGroupName);
                 List<Biome.SpawnListEntry> entries = biome.getSpawnableList(newGroup.getType());
                 for(Biome.SpawnListEntry entry : modifiedGroupEntries) {
-                    ((ISpawnGroupObject) entry).specifiedspawning$setSpawnGroup(newGroup, true);
+                    ISpawnGroupObject obj = (ISpawnGroupObject)entry;
+                    obj.specifiedspawning$setSpawnGroup(newGroup, true);
                     for(Jockey jockey : this.jockeys)
                         ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
-                    ((ISpawnGroupObject)entry).specifiedspawning$setSpawnType(getSpawnType());
+                    obj.specifiedspawning$setSpawnType(getSpawnType());
+                    obj.specifiedspawning$setIgnoreSpawnConditions(shouldIgnoreSpawnConditions());
                     entries.add(entry);
                 }
             }

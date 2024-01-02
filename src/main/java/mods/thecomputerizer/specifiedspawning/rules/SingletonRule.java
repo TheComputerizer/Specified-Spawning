@@ -70,4 +70,12 @@ public abstract class SingletonRule extends AbstractRule {
         }
         return this.cachedSpawnType;
     }
+
+
+
+    protected boolean shouldIgnoreSpawnConditions() {
+        for(EntitySelector selector : this.entitySelectors)
+            if(selector.shouldIgnoreSpawnConditions()) return true;
+        return false;
+    }
 }

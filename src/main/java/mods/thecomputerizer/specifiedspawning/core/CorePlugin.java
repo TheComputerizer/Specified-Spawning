@@ -12,7 +12,7 @@ public class CorePlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     static {
         Constants.LOGGER.info("Loading core plugin");
-        ConfigManager.loadSpawnGroups();
+        ConfigManager.loadSpawnGroups(false);
     }
 
     @Override

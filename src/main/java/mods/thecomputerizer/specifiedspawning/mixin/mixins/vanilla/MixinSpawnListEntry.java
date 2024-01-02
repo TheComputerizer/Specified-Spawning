@@ -30,6 +30,7 @@ public class MixinSpawnListEntry implements ISpawnGroupObject, IPotentialJockey 
 
     @Unique private boolean specifiedspawning$isModifiedSpawn;
     @Unique private SpawnPlacementType specifiedspawning$cachedSpawnType;
+    @Unique private boolean specifiedspawning$ignoreSpawnConditions;
 
     @Unique private final List<Jockey> specifiedspawning$potentialJockeys = new ArrayList<>();
 
@@ -41,6 +42,7 @@ public class MixinSpawnListEntry implements ISpawnGroupObject, IPotentialJockey 
                     this.specifiedspawning$spawnGroup, this.specifiedspawning$isModifiedSpawn);
             for(Jockey jockey : this.specifiedspawning$potentialJockeys)
                 ((IPotentialJockey)entity).specifiedspawning$addJockey(jockey);
+            ((ISpawnGroupObject)entity).specifiedspawning$setIgnoreSpawnConditions(this.specifiedspawning$ignoreSpawnConditions);
         }
     }
 
@@ -78,5 +80,15 @@ public class MixinSpawnListEntry implements ISpawnGroupObject, IPotentialJockey 
     @Override
     public void specifiedspawning$setSpawnType(SpawnPlacementType cachedType) {
         this.specifiedspawning$cachedSpawnType = cachedType;
+    }
+
+    @Override
+    public void specifiedspawning$setIgnoreSpawnConditions(boolean ignore) {
+        this.specifiedspawning$ignoreSpawnConditions = ignore;
+    }
+
+    @Override
+    public boolean specifiedspawning$shouldIgnoreSpawnConditions() {
+        return this.specifiedspawning$ignoreSpawnConditions;
     }
 }

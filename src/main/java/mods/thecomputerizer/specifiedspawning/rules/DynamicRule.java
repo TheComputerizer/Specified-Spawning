@@ -44,12 +44,12 @@ public abstract class DynamicRule extends AbstractRule {
         final Map<SelectorType,MutableInt> counterMap = new HashMap<>();
         dynamicSelectors.removeIf(selector -> {
             SelectorType type = selector.getType();
+            if(selector instanceof BiomeSelector) this.biomeSelectors.add((BiomeSelector)selector);
+            if(type==SelectorType.BIOME || type==SelectorType.ENTITY) return true;
             if(type==SelectorType.SCALINGDIFFICULTY) SHHooks.setLoadedScalingDifficultySelector(true);
             counterMap.putIfAbsent(type,new MutableInt());
             counterMap.get(type).increment();
-            boolean ret = selector instanceof BiomeSelector;
-            if(ret) this.biomeSelectors.add((BiomeSelector)selector);
-            return ret;
+            return false;
         });
         this.dynamicSelectors = dynamicSelectors;
         this.dynamicTypeMap = new HashMap<>();
@@ -93,9 +93,18 @@ public abstract class DynamicRule extends AbstractRule {
             type = selector.getSpawnType();
             if(Objects.nonNull(type)) break;
         }
-        if(Objects.nonNull(type))
-            for(Biome.SpawnListEntry entry : ret)
-                ((ISpawnGroupObject)entry).specifiedspawning$setSpawnType(type);
+        boolean ignoreSpawnConditions = false;
+        for(EntitySelector selector : this.entitySelectors) {
+            if(selector.shouldIgnoreSpawnConditions()) {
+                ignoreSpawnConditions = true;
+                break;
+            }
+        }
+        for(Biome.SpawnListEntry entry : ret) {
+            ISpawnGroupObject obj = (ISpawnGroupObject)entry;
+            if(Objects.nonNull(type)) obj.specifiedspawning$setSpawnType(type);
+            obj.specifiedspawning$setIgnoreSpawnConditions(ignoreSpawnConditions);
+        }
         return ret;
     }
 

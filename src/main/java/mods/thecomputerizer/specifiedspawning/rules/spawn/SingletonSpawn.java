@@ -38,7 +38,9 @@ public class SingletonSpawn extends SingletonRule implements ISpawnRule {
                     Biome.SpawnListEntry entry = new Biome.SpawnListEntry((Class<? extends EntityLiving>) entity.getEntityClass(),
                             getEntityWeight(), getEntitySpawnCount(true), getEntitySpawnCount(false));
                     for(Jockey jockey : this.jockeys) ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
-                    ((ISpawnGroupObject)entry).specifiedspawning$setSpawnType(getSpawnType());
+                    ISpawnGroupObject obj = (ISpawnGroupObject)entry;
+                    obj.specifiedspawning$setSpawnType(getSpawnType());
+                    obj.specifiedspawning$setIgnoreSpawnConditions(shouldIgnoreSpawnConditions());
                     biome.getSpawnableList(group.getType()).add(entry);
                 }
             }

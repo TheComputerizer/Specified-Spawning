@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 public class AddedEnums {
 
-    public static final SpawnPlacementType ANY_SPAWN = EnumHelper.addSpawnPlacementType("all",null);
+    public static final SpawnPlacementType ANY_SPAWN = EnumHelper.addSpawnPlacementType("all",(access,pos) -> true);
 
     public static @Nullable SpawnPlacementType getSpawnType(String type) {
         if(type.matches("ground")) return SpawnPlacementType.ON_GROUND;

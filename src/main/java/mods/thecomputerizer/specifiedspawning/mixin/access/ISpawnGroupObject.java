@@ -14,4 +14,6 @@ public interface ISpawnGroupObject {
     List<DynamicRule> specifiedspawning$getDynamicRules();
     SpawnPlacementType specifiedspawning$getSpawnType(SpawnPlacementType defType);
     void specifiedspawning$setSpawnType(SpawnPlacementType cachedType);
+    void specifiedspawning$setIgnoreSpawnConditions(boolean ignore);
+    boolean specifiedspawning$shouldIgnoreSpawnConditions();
 }

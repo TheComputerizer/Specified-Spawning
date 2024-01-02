@@ -48,16 +48,18 @@ public class ConfigManager {
 
     public static ConfigManager INSTANCE;
 
-    public static void loadSpawnGroups() {
-        URL tilURL;
-        try {
-            File file = findTILFile();
-            if(Objects.nonNull(file)) tilURL = file.toURI().toURL();
-            else throw new MalformedURLException("what");
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Could not add The Impossible Library to the Class Loader >:(");
+    public static void loadSpawnGroups(boolean isProdEnv) {
+        URL tilURL = null;
+        if(isProdEnv) {
+            try {
+                File file = findTILFile();
+                if (Objects.nonNull(file)) tilURL = file.toURI().toURL();
+                else throw new MalformedURLException("what");
+            } catch (MalformedURLException e) {
+                throw new RuntimeException("Could not add The Impossible Library to the Class Loader >:(");
+            }
+            Launch.classLoader.addURL(tilURL);
         }
-        Launch.classLoader.addURL(tilURL);
         CONFIG = getOrMakeConfigFile();
         Toml toml = TomlUtil.get(CONFIG);
         if(toml.containsTableArray("group"))
@@ -65,8 +67,10 @@ public class ConfigManager {
                 addSpawnGroupBuilder(groupToml);
         else if (toml.containsTable("group"))
             addSpawnGroupBuilder(toml.getTable("group"));
-        //Hack to avoid duplicate mod exception
-        Launch.classLoader.getSources().remove(tilURL);
+        if(isProdEnv) {
+            //Hack to avoid duplicate mod exception
+            Launch.classLoader.getSources().remove(tilURL);
+        }
     }
 
     private static File findTILFile() {
