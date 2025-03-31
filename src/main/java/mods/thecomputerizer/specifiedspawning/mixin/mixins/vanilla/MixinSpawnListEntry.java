@@ -9,7 +9,7 @@ import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLiving.SpawnPlacementType;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biome.SpawnListEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-@Mixin(value = Biome.SpawnListEntry.class, remap = false)
+@Mixin(value = SpawnListEntry.class, remap = false)
 public class MixinSpawnListEntry implements ISpawnGroupObject, IPotentialJockey {
 
     @Unique private final List<DynamicRule> specifiedspawning$assignedRules = new ArrayList<>();
@@ -46,49 +46,40 @@ public class MixinSpawnListEntry implements ISpawnGroupObject, IPotentialJockey 
         }
     }
 
-    @Override
-    public void specifiedspawning$setSpawnGroup(SpawnGroup group, boolean isModifiedSpawn) {
+    @Override public void specifiedspawning$setSpawnGroup(SpawnGroup group, boolean isModifiedSpawn) {
         this.specifiedspawning$spawnGroup = group;
         this.specifiedspawning$isModifiedSpawn = isModifiedSpawn;
     }
 
-    @Override
-    public void specifiedspawning$addJockey(Jockey jockey) {
+    @Override public void specifiedspawning$addJockey(Jockey jockey) {
         this.specifiedspawning$potentialJockeys.add(jockey);
     }
 
-    @Override
-    public void specifiedspawning$addDynamicRule(DynamicRule rule) {
+    @Override public void specifiedspawning$addDynamicRule(DynamicRule rule) {
         this.specifiedspawning$assignedRules.add(rule);
     }
 
-    @Override
-    public void specifiedspawning$sortRules() {
+    @Override public void specifiedspawning$sortRules() {
         this.specifiedspawning$assignedRules.sort(Comparator.comparingInt(IRule::getOrder));
     }
 
-    @Override
-    public List<DynamicRule> specifiedspawning$getDynamicRules() {
+    @Override public List<DynamicRule> specifiedspawning$getDynamicRules() {
         return this.specifiedspawning$assignedRules;
     }
 
-    @Override
-    public SpawnPlacementType specifiedspawning$getSpawnType(SpawnPlacementType defType) {
+    @Override public SpawnPlacementType specifiedspawning$getSpawnType(SpawnPlacementType defType) {
         return Objects.nonNull(this.specifiedspawning$cachedSpawnType) ? this.specifiedspawning$cachedSpawnType : defType;
     }
 
-    @Override
-    public void specifiedspawning$setSpawnType(SpawnPlacementType cachedType) {
+    @Override public void specifiedspawning$setSpawnType(SpawnPlacementType cachedType) {
         this.specifiedspawning$cachedSpawnType = cachedType;
     }
 
-    @Override
-    public void specifiedspawning$setIgnoreSpawnConditions(boolean ignore) {
+    @Override public void specifiedspawning$setIgnoreSpawnConditions(boolean ignore) {
         this.specifiedspawning$ignoreSpawnConditions = ignore;
     }
 
-    @Override
-    public boolean specifiedspawning$shouldIgnoreSpawnConditions() {
+    @Override public boolean specifiedspawning$shouldIgnoreSpawnConditions() {
         return this.specifiedspawning$ignoreSpawnConditions;
     }
 }

@@ -19,7 +19,7 @@ import java.util.Objects;
 @Mixin(WorldEntitySpawner.class)
 public abstract class MixinWorldEntitySpawner {
 
-    @Shadow
+    @SuppressWarnings("unused") @Shadow
     public static boolean canCreatureTypeSpawnAtLocation(SpawnPlacementType type, World world, BlockPos pos) {
         return false;
     }

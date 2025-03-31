@@ -1,33 +1,36 @@
 package mods.thecomputerizer.specifiedspawning.world.entity;
 
-import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static mods.thecomputerizer.specifiedspawning.core.Constants.RANDOM;
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES;
+
 public class Jockey extends WeightedRandom.Item {
 
-    public static Jockey parse(Table jockeyTable) {
+    public static Jockey parse(Toml jockeyTable) {
         EntitySelector selector = EntitySelector.makeSelector(jockeyTable);
         if(Objects.nonNull(selector)) {
             List<EntityEntry> entries = new ArrayList<>();
-            for(EntityEntry entry : ForgeRegistries.ENTITIES.getValuesCollection())
+            for(EntityEntry entry : ENTITIES.getValuesCollection())
                 if(selector.isResourceValid(entry,"jockey")) entries.add(entry);
-            EntityEntry rider = entries.isEmpty() ? null : entries.get(Constants.RANDOM.nextInt(entries.size()));
-            Jockey jockey = new Jockey(rider,jockeyTable.getValOrDefault("weight",10));
-            for(Table subJockeyTable : jockeyTable.getTablesByName("jockey")) {
-                Jockey subJockey = parse(subJockeyTable);
-                if(Objects.nonNull(subJockey)) jockey.addSubJockey(subJockey);
+            EntityEntry rider = entries.isEmpty() ? null : entries.get(RANDOM.nextInt(entries.size()));
+            Jockey jockey = new Jockey(rider,jockeyTable.getValueInt("weight",10));
+            if(jockeyTable.hasTable("jockey")) {
+                for(Toml subJockeyTable : jockeyTable.getTableArray("jockey")) {
+                    Jockey subJockey = parse(subJockeyTable);
+                    if(Objects.nonNull(subJockey)) jockey.addSubJockey(subJockey);
+                }
             }
             return jockey;
         }

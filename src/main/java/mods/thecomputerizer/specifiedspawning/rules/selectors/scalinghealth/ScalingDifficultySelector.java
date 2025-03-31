@@ -3,7 +3,7 @@ package mods.thecomputerizer.specifiedspawning.rules.selectors.scalinghealth;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.AbstractSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.specifiedspawning.world.SHHooks;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.silentchaos512.scalinghealth.utils.SHPlayerDataHandler;
@@ -11,12 +11,15 @@ import net.silentchaos512.scalinghealth.utils.SHPlayerDataHandler;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.SCALINGDIFFICULTY;
+
 public class ScalingDifficultySelector extends AbstractSelector {
-    public static ScalingDifficultySelector makeSelector(Table table) {
+    
+    public static ScalingDifficultySelector makeSelector(Toml table) {
         if(Objects.isNull(table)) return null;
-        return new ScalingDifficultySelector(table.getValOrDefault("inverted",false),
-                table.getValOrDefault("min",0f),
-                table.getValOrDefault("max", SHHooks.getMaxDifficulty()));
+        return new ScalingDifficultySelector(table.getValueBool("inverted",false),
+                table.getValueFloat("min",0f),
+                table.getValueFloat("max",SHHooks.getMaxDifficulty()));
     }
 
     private final float min;
@@ -33,19 +36,16 @@ public class ScalingDifficultySelector extends AbstractSelector {
         this.cachedPlayerData = data;
     }
 
-    @Override
-    protected boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
+    @Override protected boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
         return Objects.nonNull(this.cachedPlayerData) && this.min<=this.cachedPlayerData.getDifficulty() &&
                 this.max>=this.cachedPlayerData.getDifficulty();
     }
 
-    @Override
-    public boolean isNonBasic() {
+    @Override public boolean isNonBasic() {
         return true;
     }
 
-    @Override
-    public SelectorType getType() {
-        return SelectorType.SCALINGDIFFICULTY;
+    @Override public SelectorType getType() {
+        return SCALINGDIFFICULTY;
     }
 }

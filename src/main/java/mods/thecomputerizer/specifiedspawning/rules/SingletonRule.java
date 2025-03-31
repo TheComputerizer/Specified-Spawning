@@ -8,11 +8,13 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLiving.SpawnPlacementType;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
 import java.util.*;
+
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.BIOMES;
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES;
+import static org.apache.logging.log4j.Level.INFO;
 
 public abstract class SingletonRule extends AbstractRule {
 
@@ -28,17 +30,16 @@ public abstract class SingletonRule extends AbstractRule {
         this.biomeSelectors = biomeSelectors;
     }
 
-    @Override
-    public void setup() {
+    @Override public void setup() {
         setRuleDescriptor();
-        Constants.logVerbose(Level.INFO,"Setting up {} rule",this.ruleDescriptor);
+        Constants.logVerbose(INFO,"Setting up {} rule",this.ruleDescriptor);
         if(Objects.isNull(this.entitySelectors) || this.entitySelectors.isEmpty()) {
-            this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
+            this.entities = new HashSet<>(ENTITIES.getValuesCollection());
             this.entities.removeIf(entry -> !EntityLiving.class.isAssignableFrom(entry.getEntityClass()));
         }
         else this.entities = getEntities(this.entitySelectors);
         if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty())
-            this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
+            this.biomes = new HashSet<>(BIOMES.getValuesCollection());
         else this.biomes = getBiomes(this.biomeSelectors);
     }
 

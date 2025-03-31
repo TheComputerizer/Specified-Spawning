@@ -10,12 +10,14 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.ResourceSelector;
 import mods.thecomputerizer.specifiedspawning.core.SpawnManager;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.BIOMES;
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES;
 
 public abstract class AbstractRule implements IRule {
 
@@ -32,18 +34,17 @@ public abstract class AbstractRule implements IRule {
     }
 
     public Collection<SpawnGroup> getSpawnGroups() {
-        return (this.groupName.matches("all") ? SpawnManager.getAllSpawnGroups() :
+        return (this.groupName.equals("all") ? SpawnManager.getAllSpawnGroups() :
                 Collections.singleton(SpawnManager.getSpawnGroup(this.groupName))).stream().filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     protected void setRuleDescriptor() {
         String singleton = this instanceof SingletonRule ? "singleton" : "dynamic";
-        String type;
+        String type = "spawn";
         if(this instanceof IGroupRule) type = "group";
         else if(this instanceof IModifyRule) type = "modify";
         else if(this instanceof IRemoveRule) type = "remove";
-        else type = "spawn";
         this.ruleDescriptor = singleton+"-"+type;
     }
 
@@ -55,34 +56,30 @@ public abstract class AbstractRule implements IRule {
     }
 
     protected Set<EntityEntry> getEntities(EntitySelector selector) {
-        return getRegSet(ForgeRegistries.ENTITIES,selector);
+        return getRegSet(ENTITIES,selector);
     }
 
     protected Set<EntityEntry> getEntities(Collection<EntitySelector> selectors) {
         Set<EntityEntry> ret = new HashSet<>();
-        for(EntitySelector selector : selectors)
-            ret.addAll(getEntities(selector));
+        for(EntitySelector selector : selectors) ret.addAll(getEntities(selector));
         return ret;
     }
 
     protected Set<Biome> getBiomes(BiomeSelector selector) {
-        return getRegSet(ForgeRegistries.BIOMES,selector);
+        return getRegSet(BIOMES,selector);
     }
 
     protected Set<Biome> getBiomes(Collection<BiomeSelector> selectors) {
         Set<Biome> ret = new HashSet<>();
-        for(BiomeSelector selector : selectors)
-            ret.addAll(getBiomes(selector));
+        for(BiomeSelector selector : selectors) ret.addAll(getBiomes(selector));
         return ret;
     }
 
-    @Override
-    public void setOrder(int index) {
+    @Override public void setOrder(int index) {
         this.order = index;
     }
 
-    @Override
-    public int getOrder() {
+    @Override public int getOrder() {
         return this.order;
     }
 }

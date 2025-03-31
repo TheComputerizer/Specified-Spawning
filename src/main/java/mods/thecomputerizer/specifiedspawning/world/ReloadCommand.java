@@ -1,7 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.world;
 
 import mcp.MethodsReturnNonnullByDefault;
-import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.SpecifiedSpawning;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -17,32 +16,39 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
+import static mods.thecomputerizer.specifiedspawning.core.Constants.MODID;
+
+@MethodsReturnNonnullByDefault @ParametersAreNonnullByDefault
 public class ReloadCommand extends CommandBase {
-    @Override
-    public String getName() {
-        return Constants.MODID;
+    
+    @Override public String getName() {
+        return MODID;
     }
 
-    @Override
-    public String getUsage(ICommandSender sender) {
+    @Override public String getUsage(ICommandSender sender) {
         return "Specified Spawning commands initiated";
     }
 
-    @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String ... args) {
-        if(args.length==0) notify(sender, "help");
-        else if(args[0].matches("reload")) {
-            SpecifiedSpawning.reload();
-            notify(sender, "success");
+    @Override public void execute(MinecraftServer server, ICommandSender sender, String ... args) {
+        if(args.length==0) {
+            notify(sender,"help");
+            return;
         }
-        else if(args[0].matches("test")) {
-            if(args.length>1) {
-                if(args[1].matches("enum")) printEnumValues(sender,EnumCreatureType.values());
-                else notify(sender,"test.help");
-            } else notify(sender,"test.help");
-        } else notify(sender, "help");
+        switch(args[0]) {
+            case "reload": {
+                SpecifiedSpawning.reload();
+                notify(sender,"success");
+                return;
+            }
+            case "test": {
+                if(args.length>1) {
+                    if(args[1].matches("enum")) printEnumValues(sender,EnumCreatureType.values());
+                    else notify(sender,"test.help");
+                } else notify(sender,"test.help");
+                return;
+            }
+            default: notify(sender,"help");
+        }
     }
 
     private <T extends Enum<T>> void printEnumValues(ICommandSender sender, T[] values) {
@@ -65,14 +71,13 @@ public class ReloadCommand extends CommandBase {
     }
 
     private String buildLang(@Nonnull String langKeyEnding) {
-        return "command."+Constants.MODID+"."+langKeyEnding;
+        return "command."+MODID+"."+langKeyEnding;
     }
 
-    @Override
-    public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
-                                          @Nullable BlockPos targetPos) {
-        if(args.length==1) return Arrays.asList("reload", "test");
-        else if(args.length==2 && args[0].matches("test")) return Collections.singletonList("enum");
+    @Override public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender,
+            String[] args, @Nullable BlockPos targetPos) {
+        if(args.length==1) return Arrays.asList("reload","test");
+        else if(args.length==2 && "test".equals(args[0])) return Collections.singletonList("enum");
         return Collections.emptyList();
     }
 }

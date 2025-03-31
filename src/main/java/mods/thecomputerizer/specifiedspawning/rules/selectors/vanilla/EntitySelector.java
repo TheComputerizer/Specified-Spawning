@@ -4,26 +4,31 @@ import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ResourceSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.specifiedspawning.util.AddedEnums;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLiving.SpawnPlacementType;
 import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import org.apache.logging.log4j.Level;
 
 import java.util.Objects;
 
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.ENTITY;
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES;
+import static org.apache.logging.log4j.Level.DEBUG;
+
 public class EntitySelector extends ResourceSelector<EntityEntry> {
 
-    public static EntitySelector makeSelector(Table table) {
+    public static EntitySelector makeSelector(Toml table) {
         if(Objects.isNull(table)) return null;
-        Constants.logVerbose(Level.DEBUG,"Making entity selector from table {}",table.getName());
-        return new EntitySelector(table.getValOrDefault("inverted",false),
-                table.getValOrDefault("mod",""),table.getValOrDefault("entity",""),
-                table.getValOrDefault("matcher",""),table.getValOrDefault("type","def"),
-                table.getValOrDefault("ignoreSpawnConditions",false),
-                table.getValOrDefault("min_group_size",1),
-                table.getValOrDefault("max_group_size",1),table.getValOrDefault("weight",10));
+        Constants.logVerbose(DEBUG,"Making entity selector from table {}",table.getName());
+        return new EntitySelector(table.getValueBool("inverted",false),
+                table.hasTable("mod") ? table.getValueString("mod") : "",
+                table.hasTable("entity") ? table.getValueString("entity") : "",
+                table.hasTable("matcher") ? table.getValueString("matcher") : "",
+                table.hasTable("type") ? table.getValueString("type") : "def",
+                table.getValueBool("ignoreSpawnConditions",false),
+                table.getValueInt("min_group_size",1),
+                table.getValueInt("max_group_size",1),
+                table.getValueInt("weight",10));
     }
 
     private final SpawnPlacementType spawnType;
@@ -60,20 +65,17 @@ public class EntitySelector extends ResourceSelector<EntityEntry> {
         return this.weight;
     }
 
-    @Override
-    public boolean isResourceValid(EntityEntry entity, String ruleDescriptor) {
+    @Override public boolean isResourceValid(EntityEntry entity, String ruleDescriptor) {
         if(Objects.isNull(entity) || !EntityLiving.class.isAssignableFrom(entity.getEntityClass())) return false;
-        return isResourceValid(ForgeRegistries.ENTITIES.getKey(entity),"entity",ruleDescriptor);
+        return isResourceValid(ENTITIES.getKey(entity),"entity",ruleDescriptor);
     }
 
-    @Override
-    public boolean isNonBasic() {
+    @Override public boolean isNonBasic() {
         return false;
     }
 
-    @Override
-    public SelectorType getType() {
-        return SelectorType.ENTITY;
+    @Override public SelectorType getType() {
+        return ENTITY;
     }
 
     public boolean shouldIgnoreSpawnConditions() {

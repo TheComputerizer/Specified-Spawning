@@ -8,8 +8,9 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.BiomeSelec
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySelector;
 import mods.thecomputerizer.specifiedspawning.core.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 
 import java.util.Collection;
@@ -24,21 +25,20 @@ public class SingletonModify extends SingletonRule implements IModifyRule {
     private final boolean modifySpawnCounts;
     private final List<Jockey> jockeys;
 
-    public SingletonModify(String groupName, String newGroupName, boolean modifySpawnCounts, List<EntitySelector> entitySelectors,
-                           Set<BiomeSelector> biomeSelectors, List<Table> jockeyTables) {
+    public SingletonModify(String groupName, String newGroupName, boolean modifySpawnCounts,
+            List<EntitySelector> entitySelectors, Set<BiomeSelector> biomeSelectors, List<Toml> jockeyTables) {
         super(groupName,entitySelectors, biomeSelectors);
         this.newGroupName = newGroupName;
         this.modifySpawnCounts = modifySpawnCounts;
         this.jockeys = jockeyTables.stream().map(Jockey::parse).collect(Collectors.toList());
     }
 
-    @Override
-    protected void apply(Biome biome, Collection<SpawnGroup> groups) {
+    @Override protected void apply(Biome biome, Collection<SpawnGroup> groups) {
         for(EntityEntry entity : getEntities()) {
             for(SpawnGroup group : groups) {
-                Set<Biome.SpawnListEntry> modifiedGroupEntries = new HashSet<>();
+                Set<SpawnListEntry> modifiedGroupEntries = new HashSet<>();
                 biome.getSpawnableList(group.getType()).removeIf(entry -> {
-                    if(entry.entityClass == entity.getEntityClass()) {
+                    if(entry.entityClass==entity.getEntityClass()) {
                         if(this.modifySpawnCounts) {
                             entry.minGroupCount = getEntitySpawnCount(true);
                             entry.maxGroupCount = getEntitySpawnCount(false);
@@ -58,12 +58,11 @@ public class SingletonModify extends SingletonRule implements IModifyRule {
                     return false;
                 });
                 SpawnGroup newGroup = SpawnManager.getSpawnGroup(this.newGroupName);
-                List<Biome.SpawnListEntry> entries = biome.getSpawnableList(newGroup.getType());
-                for(Biome.SpawnListEntry entry : modifiedGroupEntries) {
+                List<SpawnListEntry> entries = biome.getSpawnableList(newGroup.getType());
+                for(SpawnListEntry entry : modifiedGroupEntries) {
                     ISpawnGroupObject obj = (ISpawnGroupObject)entry;
                     obj.specifiedspawning$setSpawnGroup(newGroup, true);
-                    for(Jockey jockey : this.jockeys)
-                        ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
+                    for(Jockey jockey : this.jockeys) ((IPotentialJockey) entry).specifiedspawning$addJockey(jockey);
                     obj.specifiedspawning$setSpawnType(getSpawnType());
                     obj.specifiedspawning$setIgnoreSpawnConditions(shouldIgnoreSpawnConditions());
                     entries.add(entry);

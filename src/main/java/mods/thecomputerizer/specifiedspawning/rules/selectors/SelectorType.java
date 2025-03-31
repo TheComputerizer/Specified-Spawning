@@ -9,7 +9,7 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.nyx.StarShowerSele
 import mods.thecomputerizer.specifiedspawning.rules.selectors.scalinghealth.ScalingDifficultySelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.sereneseasons.SeasonSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.*;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -38,9 +38,9 @@ public enum SelectorType {
     private final String name;
     private final boolean subTable;
     private final String requiredMod;
-    private final Function<Table,ISelector> creatorFunction;
+    private final Function<Toml,ISelector> creatorFunction;
 
-    SelectorType(String name, boolean subTable, String requiredMod, Function<Table,ISelector> creatorFunction) {
+    SelectorType(String name, boolean subTable, String requiredMod, Function<Toml,ISelector> creatorFunction) {
         this.name = name;
         this.subTable = subTable;
         this.requiredMod = requiredMod;
@@ -55,15 +55,14 @@ public enum SelectorType {
         return this.subTable;
     }
 
-    public ISelector makeSelector(Table table) {
+    public ISelector makeSelector(Toml table) {
         if(Objects.isNull(table)) return null;
         if(Objects.nonNull(this.requiredMod) && !SpecifiedSpawning.isModLoaded(this.requiredMod)) return null;
-        if(!this.subTable && !table.hasVar(this.name)) return null;
+        if(!this.subTable && !table.hasEntry(this.name)) return null;
         return this.creatorFunction.apply(table);
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return this.subTable ? "["+this.name+"]" : this.name;
     }
 }

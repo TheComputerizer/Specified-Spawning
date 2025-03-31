@@ -2,38 +2,38 @@ package mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla;
 
 import mods.thecomputerizer.specifiedspawning.rules.selectors.ResourceSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 import java.util.Objects;
 
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.BIOME;
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.BIOMES;
+
 public class BiomeSelector extends ResourceSelector<Biome> {
 
-    public static BiomeSelector makeSelector(Table table) {
+    public static BiomeSelector makeSelector(Toml table) {
         if(Objects.isNull(table)) return null;
-        return new BiomeSelector(table.getValOrDefault("inverted",false),
-                table.getValOrDefault("mod",""),table.getValOrDefault("biome",""),
-                table.getValOrDefault("matcher",""));
+        return new BiomeSelector(table.getValueBool("inverted",false),
+                table.hasTable("mod") ? table.getValueString("mod") : "",
+                table.hasTable("biome") ? table.getValueString("biome") : "",
+                table.hasTable("matcher") ? table.getValueString("matcher") : "");
     }
 
     private BiomeSelector(boolean isInverted, String mod, String biomeID, String matcher) {
         super(isInverted,mod,biomeID,matcher);
     }
 
-    @Override
-    public boolean isResourceValid(Biome biome, String ruleDescriptor) {
+    @Override public boolean isResourceValid(Biome biome, String ruleDescriptor) {
         if(Objects.isNull(biome)) return false;
-        return isResourceValid(ForgeRegistries.BIOMES.getKey(biome),"biome",ruleDescriptor);
+        return isResourceValid(BIOMES.getKey(biome),"biome",ruleDescriptor);
     }
 
-    @Override
-    public boolean isNonBasic() {
+    @Override public boolean isNonBasic() {
         return false;
     }
 
-    @Override
-    public SelectorType getType() {
-        return SelectorType.BIOME;
+    @Override public SelectorType getType() {
+        return BIOME;
     }
 }

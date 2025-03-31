@@ -15,8 +15,7 @@ public abstract class AbstractSelector implements ISelector {
         return (isValid && !this.isInverted) || (!isValid && this.isInverted);
     }
 
-    @Override
-    public boolean isValid(BlockPos pos, World world, String ruleDescriptor) {
+    @Override public boolean isValid(BlockPos pos, World world, String ruleDescriptor) {
         return getValid(isValidInner(pos,world,ruleDescriptor));
     }
 

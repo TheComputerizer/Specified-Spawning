@@ -2,19 +2,22 @@ package mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla;
 
 import mods.thecomputerizer.specifiedspawning.rules.selectors.AbstractSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Objects;
 
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.HEIGHT;
+
 public class HeightSelector extends AbstractSelector {
 
-    public static HeightSelector makeSelector(Table table) {
+    public static HeightSelector makeSelector(Toml table) {
         if(Objects.isNull(table)) return null;
-        return new HeightSelector(table.getValOrDefault("inverted",false),
-                table.getValOrDefault("min",0),table.getValOrDefault("max",255),
-                table.getValOrDefault("check_sky",false));
+        return new HeightSelector(table.getValueBool("inverted",false),
+                table.getValueInt("min",0),
+                table.getValueInt("max",255),
+                table.getValueBool("check_sky",false));
     }
 
     private final int minY;
@@ -28,20 +31,17 @@ public class HeightSelector extends AbstractSelector {
         this.checkSky = checkSky;
     }
 
-    @Override
-    public boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
+    @Override public boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
         int yPos = pos.getY();
         boolean validPos = yPos>=this.minY && yPos<=this.maxY;
         return validPos && (!this.checkSky || world.canSeeSky(pos));
     }
 
-    @Override
-    public boolean isNonBasic() {
+    @Override public boolean isNonBasic() {
         return true;
     }
 
-    @Override
-    public SelectorType getType() {
-        return SelectorType.HEIGHT;
+    @Override public SelectorType getType() {
+        return HEIGHT;
     }
 }

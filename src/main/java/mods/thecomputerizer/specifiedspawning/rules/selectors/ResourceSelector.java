@@ -4,10 +4,11 @@ import mods.thecomputerizer.specifiedspawning.core.Constants;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.Level;
 
 import java.util.Objects;
 import java.util.function.Function;
+
+import static org.apache.logging.log4j.Level.DEBUG;
 
 public abstract class ResourceSelector<T> extends AbstractSelector {
 
@@ -20,12 +21,11 @@ public abstract class ResourceSelector<T> extends AbstractSelector {
         this.mod = mod.isEmpty() ? null : mod;
         this.regID = regID.isEmpty() ? null : regID;
         this.matcher = matcher.isEmpty() ? null : matcher;
-        Constants.logVerbose(Level.DEBUG,"Instantiated new Resource Selector with mod '{}', registry id '{}', and " +
+        Constants.logVerbose(DEBUG,"Instantiated new Resource Selector with mod '{}', registry id '{}', and " +
                 "matcher '{}'",this.mod,this.regID,this.matcher);
     }
 
-    @Override
-    public boolean isValid(BlockPos pos, World world, String ruleDescriptor) {
+    @Override public boolean isValid(BlockPos pos, World world, String ruleDescriptor) {
         return true;
     }
 
@@ -37,16 +37,16 @@ public abstract class ResourceSelector<T> extends AbstractSelector {
 
     protected boolean isResourceValid(ResourceLocation res, String fromType, String ruleDescriptor) {
         if(Objects.isNull(res)) return false;
-        int status = calculateStatus(1,res,this.mod,res1 -> res1.getNamespace().matches(this.mod));
+        int status = calculateStatus(1,res,this.mod,res1 -> res1.getNamespace().equals(this.mod));
         if(status==2) return logValid(true,res,fromType,ruleDescriptor);
-        status = calculateStatus(status,res,this.regID,res1 -> res1.toString().matches(this.regID));
+        status = calculateStatus(status,res,this.regID,res1 -> res1.toString().equals(this.regID));
         if(status==2) return logValid(true,res,fromType,ruleDescriptor);
         status = calculateStatus(status,res,this.matcher,res1 -> res1.toString().contains(this.matcher));
         return logValid(status<=2,res,fromType,ruleDescriptor);
     }
 
     private boolean logValid(boolean result, ResourceLocation res, String fromType, String ruleDescriptor) {
-        if(result) Constants.logVerbose(Level.DEBUG,"Verified {} with id {} for a {} rule",fromType,res,ruleDescriptor);
+        if(result) Constants.logVerbose(DEBUG,"Verified {} with id {} for a {} rule",fromType,res,ruleDescriptor);
         return getValid(result);
     }
 

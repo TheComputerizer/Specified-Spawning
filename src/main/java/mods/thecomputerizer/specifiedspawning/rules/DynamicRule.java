@@ -13,7 +13,6 @@ import mods.thecomputerizer.specifiedspawning.world.SHHooks;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLiving.SpawnPlacementType;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
@@ -23,15 +22,20 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.logging.log4j.Level;
 
 import java.util.*;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
-@SuppressWarnings({"SameParameterValue", "unused"})
+import static org.apache.logging.log4j.Level.DEBUG;
+import static org.apache.logging.log4j.Level.INFO;
+
+@SuppressWarnings({"SameParameterValue","unused"})
 public abstract class DynamicRule extends AbstractRule {
 
     private final List<EntitySelector> entitySelectors;
     private final Set<BiomeSelector> biomeSelectors;
     private final Set<ISelector> dynamicSelectors;
-    private final Map<SelectorType,Tuple<Integer,MutableInt>> dynamicTypeMap;
+    private final Map<SelectorType,Entry<Integer,MutableInt>> dynamicTypeMap;
     private Set<EntityEntry> entities;
     private Set<Biome> biomes;
     public boolean shouldLogExcessively;
@@ -53,18 +57,17 @@ public abstract class DynamicRule extends AbstractRule {
         });
         this.dynamicSelectors = dynamicSelectors;
         this.dynamicTypeMap = new HashMap<>();
-        for(Map.Entry<SelectorType,MutableInt> typeEntry : counterMap.entrySet()) {
+        for(Entry<SelectorType,MutableInt> typeEntry : counterMap.entrySet()) {
             int total = typeEntry.getValue().getValue();
-            if(total>0) this.dynamicTypeMap.put(typeEntry.getKey(),new Tuple<>(total,new MutableInt()));
+            if(total>0) this.dynamicTypeMap.put(typeEntry.getKey(),new SimpleImmutableEntry<>(total,new MutableInt()));
         }
     }
 
-    @Override
-    public void setup() {
+    @Override public void setup() {
         setRuleDescriptor();
-        Constants.logVerbose(Level.INFO,"Setting up {} rule with {} dynamic selector types",this.ruleDescriptor,this.dynamicTypeMap.size());
+        Constants.logVerbose(INFO,"Setting up {} rule with {} dynamic selector types",this.ruleDescriptor,this.dynamicTypeMap.size());
         logExcessiveCollection(this.dynamicTypeMap.entrySet(), entry ->
-                "(Map Entry) | Key("+entry.getKey().toString()+") | Value("+tupleToString(entry.getValue())+")");
+                "(Map Entry) | Key("+entry.getKey().toString()+") | Value("+entryToString(entry.getValue())+")");
         if(Objects.isNull(this.entitySelectors) || this.entitySelectors.isEmpty()) {
             this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
             this.entities.removeIf(entry -> !EntityLiving.class.isAssignableFrom(entry.getEntityClass()));
@@ -128,49 +131,44 @@ public abstract class DynamicRule extends AbstractRule {
             if(selector instanceof ScalingDifficultySelector)
                 ((ScalingDifficultySelector)selector).setPlayerData(SHHooks.getCachedData());
             if(selector.isValid(pos, world, this.ruleDescriptor)) {
-                this.dynamicTypeMap.get(selector.getType()).getSecond().increment();
+                this.dynamicTypeMap.get(selector.getType()).getValue().increment();
             }
         }
         boolean ret = true;
-        //logExcessiveCollection(this.dynamicTypeMap.entrySet(), entry ->
-                //"(Map Entry) | Key("+entry.getKey().toString()+") | Value("+tupleToString(entry.getValue())+")");
-        for(Tuple<Integer,MutableInt> typeCounter : this.dynamicTypeMap.values()) {
-            MutableInt counter = typeCounter.getSecond();
+        for(Entry<Integer,MutableInt> typeCounter : this.dynamicTypeMap.values()) {
+            MutableInt counter = typeCounter.getValue();
             if(counter.getValue()<=0) ret = false;
             counter.setValue(0);
         }
         return ret;
     }
 
-    protected String tupleToString(Tuple<?,?> tuple) {
-        return "(Tuple) | First("+tuple.getFirst()+") | Second("+tuple.getSecond()+")";
+    protected String entryToString(Entry<?,?> entry) {
+        return "(Entry) | Key("+entry.getKey()+") | Value("+entry.getValue()+")";
     }
 
     protected <E> void logExcessiveCollection(Collection<E> c, Function<E,String> entryFunc) {
         if(this.shouldLogExcessively) {
-            Constants.logVerbose(Level.INFO,"Excessively logging collection with {} entries",c.size());
-            for (E element : c)
-                Constants.logVerbose(Level.INFO, entryFunc.apply(element));
+            Constants.logVerbose(INFO,"Excessively logging collection with {} entries", c.size());
+            for(E element : c) Constants.logVerbose(INFO,entryFunc.apply(element));
         }
     }
 
     protected void logExcessiveDebug(String msg, Object ... parameters) {
-        doExcessiveLogging(Level.DEBUG,msg,parameters);
+        doExcessiveLogging(DEBUG,msg,parameters);
     }
 
     protected void logExcessiveInfo(String msg, Object ... parameters) {
-        doExcessiveLogging(Level.INFO,msg,parameters);
+        doExcessiveLogging(INFO,msg, parameters);
     }
 
     private void doExcessiveLogging(Level level, String msg, Object ... parameters) {
-        if(this.shouldLogExcessively)
-            Constants.logVerbose(level,msg,parameters);
+        if(this.shouldLogExcessively) Constants.logVerbose(level,msg,parameters);
     }
 
     public abstract boolean isRemoval();
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return this.ruleDescriptor;
     }
 }

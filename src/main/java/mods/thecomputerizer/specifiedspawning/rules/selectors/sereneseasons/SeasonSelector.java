@@ -2,7 +2,7 @@ package mods.thecomputerizer.specifiedspawning.rules.selectors.sereneseasons;
 
 import mods.thecomputerizer.specifiedspawning.rules.selectors.AbstractSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
+import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import sereneseasons.api.season.Season;
@@ -10,12 +10,14 @@ import sereneseasons.api.season.SeasonHelper;
 
 import java.util.Objects;
 
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.SEASON;
+
 public class SeasonSelector extends AbstractSelector {
 
-    public static SeasonSelector makeSelector(Table table) {
+    public static SeasonSelector makeSelector(Toml table) {
         if(Objects.isNull(table)) return null;
-        return new SeasonSelector(table.getValOrDefault("inverted",false),
-                table.getValOrDefault("season","spring"));
+        return new SeasonSelector(table.getValueBool("inverted",false),
+                table.hasEntry("season") ? table.getValueString("season") : "spring");
     }
 
     private final String season;
@@ -25,27 +27,27 @@ public class SeasonSelector extends AbstractSelector {
         this.season = season;
     }
 
-    @Override
-    protected boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
+    @Override protected boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
         Season season = SeasonHelper.getSeasonState(world).getSeason();
-        return normalizedSeasonName().matches(season.name().toLowerCase());
+        return normalizedSeasonName().equals(season.name().toLowerCase());
     }
 
     private String normalizedSeasonName() {
-        if(this.season.matches("0")) return "spring";
-        if(this.season.matches("1")) return "summer";
-        if(this.season.matches("2") || this.season.matches("fall")) return "autumn";
-        if(this.season.matches("3")) return "winter";
-        return this.season;
+        switch(this.season) {
+            case "0": return "spring";
+            case "1": return "summer";
+            case "2":
+            case "fall": return "autumn";
+            case "3": return "winter";
+            default: return this.season;
+        }
     }
 
-    @Override
-    public SelectorType getType() {
-        return SelectorType.SEASON;
+    @Override public SelectorType getType() {
+        return SEASON;
     }
 
-    @Override
-    public boolean isNonBasic() {
+    @Override public boolean isNonBasic() {
         return true;
     }
 }

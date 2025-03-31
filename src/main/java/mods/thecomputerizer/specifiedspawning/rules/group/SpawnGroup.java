@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static net.minecraft.block.material.Material.AIR;
+import static net.minecraft.block.material.Material.WATER;
+
 public class SpawnGroup implements IRule, IGroupRule {
 
     private static final List<Builder> BUILDERS = new ArrayList<>();
@@ -59,23 +62,17 @@ public class SpawnGroup implements IRule, IGroupRule {
     }
 
     public Material getSpawnMaterial() {
-        return this.isAquatic ? Material.WATER : Material.AIR;
+        return this.isAquatic ? WATER : AIR;
     }
 
     @Override
-    public void setOrder(int index) {
+    public void setOrder(int index) {}
 
-    }
-
-    @Override
-    public int getOrder() {
+    @Override public int getOrder() {
         return 0;
     }
 
-    @Override
-    public void setup() {
-
-    }
+    @Override public void setup() {}
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static class Builder implements IRuleBuilder {
@@ -112,8 +109,7 @@ public class SpawnGroup implements IRule, IGroupRule {
             this.potentialAquatic = Optional.empty();
         }
 
-        @Override
-        public void parseSelectors() {}
+        @Override public void parseSelectors() {}
 
         public String getName() {
             return this.name;

@@ -1,25 +1,26 @@
 package mods.thecomputerizer.specifiedspawning.world;
 
 import mods.thecomputerizer.specifiedspawning.SpecifiedSpawning;
-import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
 import mods.thecomputerizer.specifiedspawning.rules.DynamicRule;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.world.WorldEvent.PotentialSpawns;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@Mod.EventBusSubscriber(modid=Constants.MODID)
+import static mods.thecomputerizer.specifiedspawning.core.Constants.MODID;
+
+@EventBusSubscriber(modid=MODID)
 public class Events {
 
     @SubscribeEvent
-    public static void onGetPotentialSpawns(WorldEvent.PotentialSpawns ev) {
-        if(ev.getWorld() instanceof WorldServer) {
-            WorldServer world = (WorldServer)ev.getWorld();
-            BlockPos pos = ev.getPos();
+    public static void onGetPotentialSpawns(PotentialSpawns event) {
+        if(event.getWorld() instanceof WorldServer) {
+            WorldServer world = (WorldServer)event.getWorld();
+            BlockPos pos = event.getPos();
             if(SpecifiedSpawning.isModLoaded("scalingdifficulty")) SHHooks.cachePlayerData(pos,world);
-            ev.getList().removeIf(entry -> {
+            event.getList().removeIf(entry -> {
                 boolean ret = false;
                 for(DynamicRule rule : ((ISpawnGroupObject)entry).specifiedspawning$getDynamicRules()) {
                     if(rule.checkSelectors(pos,world)) ret = rule.isRemoval();

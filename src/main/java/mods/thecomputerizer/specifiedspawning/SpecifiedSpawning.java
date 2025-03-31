@@ -8,14 +8,20 @@ import mods.thecomputerizer.specifiedspawning.world.ReloadCommand;
 import mods.thecomputerizer.specifiedspawning.world.SHHooks;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.*;
-import org.apache.logging.log4j.Level;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Mod(modid = Constants.MODID, name = Constants.NAME, version = Constants.VERSION, dependencies = Constants.DEPENDENCIES)
+import static mods.thecomputerizer.specifiedspawning.core.Constants.DEPENDENCIES;
+import static mods.thecomputerizer.specifiedspawning.core.Constants.MODID;
+import static mods.thecomputerizer.specifiedspawning.core.Constants.NAME;
+import static mods.thecomputerizer.specifiedspawning.core.Constants.VERSION;
+import static org.apache.logging.log4j.Level.INFO;
+
+@Mod(modid=MODID, name=NAME, version=VERSION, dependencies=DEPENDENCIES)
 public class SpecifiedSpawning {
 
     private static final Set<String> CHECKED_MODS = Collections.synchronizedSet(new HashSet<>());
@@ -27,27 +33,27 @@ public class SpecifiedSpawning {
         RuleManager.parseRuleTables();
     }
 
-    @Mod.EventHandler
+    @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         RuleManager.parseRuleSelectors();
     }
 
-    @Mod.EventHandler
+    @EventHandler
     public void init(FMLInitializationEvent event) {}
 
-    @Mod.EventHandler
+    @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         SpawnManager.loadDefaultSpawnEntries();
         SpawnManager.buildSpawnGroups();
     }
 
-    @Mod.EventHandler
+    @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event) {
         RuleManager.buildRules();
         RULES_BUILT = true;
     }
 
-    @Mod.EventHandler
+    @EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
         event.registerServerCommand(new ReloadCommand());
         RuleManager.testSpecificBiome();
@@ -56,7 +62,7 @@ public class SpecifiedSpawning {
 
     public static void reload() {
         RULES_BUILT = false;
-        Constants.logVerbose(Level.INFO,"Reloading configs for world");
+        Constants.logVerbose(INFO,"Reloading configs for world");
         if(isModLoaded("scalingdifficulty")) SHHooks.setLoadedScalingDifficultySelector(false);
         SpawnManager.clear();
         RuleManager.clear();

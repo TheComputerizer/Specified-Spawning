@@ -4,26 +4,29 @@ import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.AbstractSelector;
 import mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType;
 import mods.thecomputerizer.specifiedspawning.util.ParsingUtils;
-import mods.thecomputerizer.theimpossiblelibrary.common.toml.Table;
-import mods.thecomputerizer.theimpossiblelibrary.util.TextUtil;
+import mods.thecomputerizer.theimpossiblelibrary.api.text.TextHelper;
+import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 import net.darkhax.gamestages.GameStageHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.Level;
 
 import java.util.List;
 import java.util.Objects;
 
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.GAMESTAGE;
+import static org.apache.logging.log4j.Level.DEBUG;
+
+//TODO Caching for gamestages to fix performance issues
 public class GamestageSelector extends AbstractSelector {
 
-    public static GamestageSelector makeSelector(Table table) {
+    public static GamestageSelector makeSelector(Toml table) {
         if(Objects.isNull(table)) return null;
-        return new GamestageSelector(table.getValOrDefault("inverted",false),
-                ParsingUtils.getStringList(table.getVarMap().get("gamestage")),
-                table.getValOrDefault("is_whitelist",true),
-                table.getValOrDefault("all_stages",true),
-                table.getValOrDefault("all_players",false));
+        return new GamestageSelector(table.getValueBool("inverted",false),
+                ParsingUtils.getStringList(table.getEntryValuesAsMap().get("gamestage")),
+                table.getValueBool("is_whitelist",true),
+                table.getValueBool("all_stages",true),
+                table.getValueBool("all_players",false));
     }
 
     private final List<String> stageNames;
@@ -38,11 +41,11 @@ public class GamestageSelector extends AbstractSelector {
         this.isWhitelist = isWhitelist;
         this.allStages = allStages;
         this.allPlayers = allPlayers;
-        Constants.logVerbose(Level.DEBUG,"Instantiated new gamestage selector with stages {}",TextUtil.listToString(stageNames," "));
+        Constants.logVerbose(DEBUG,"Instantiated new gamestage selector with stages {}",
+                             TextHelper.fromIterable(stageNames," "));
     }
 
-    @Override
-    public boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
+    @Override public boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
         List<EntityPlayer> players = world.playerEntities;
         if(players.isEmpty()) return false;
         boolean any = false;
@@ -63,18 +66,15 @@ public class GamestageSelector extends AbstractSelector {
         return this.isWhitelist == hasAny;
     }
 
-    @Override
-    public boolean isNonBasic() {
+    @Override public boolean isNonBasic() {
         return true;
     }
 
-    @Override
-    public SelectorType getType() {
-        return SelectorType.GAMESTAGE;
+    @Override public SelectorType getType() {
+        return GAMESTAGE;
     }
 
-    @Override
-    public String toString() {
-        return "Gamestage Selector ("+TextUtil.arrayToString(" ",this.stageNames.toArray())+")";
+    @Override public String toString() {
+        return "Gamestage Selector ("+TextHelper.arrayToString(" ",this.stageNames.toArray())+")";
     }
 }

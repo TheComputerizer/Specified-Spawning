@@ -1,7 +1,7 @@
 plugins {
-    id 'net.minecraftforge.gradle' version '6.0.+'
-    id 'wtf.gofancy.fancygradle' version '1.1.+'
-    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'net.minecraftforge.gradle' version '6.+'
+    id 'wtf.gofancy.fancygradle' version '1.+'
+    id 'org.spongepowered.mixin' version '0.+'
 }
 
 fancyGradle {
@@ -19,11 +19,15 @@ version = "${project.minecraft_version}-${project.mod_version}"
 group = project.maven_group
 archivesBaseName = project.base_name
 
-java.toolchain.getLanguageVersion().set(JavaLanguageVersion.of(8))
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of 8
+    }
+}
 
 minecraft {
     mappings channel: 'stable', version: mappings_version
-    accessTransformer = file('src/main/resources/META-INF/specifiedspawning_at.cfg')
+    accessTransformer = file 'src/main/resources/META-INF/specifiedspawning_at.cfg'
     runs {
         def args = [
                 '-Dmixin.debug.export=true',
@@ -48,14 +52,14 @@ minecraft {
 repositories {
     maven {
         name = 'CurseMaven'
-        url = uri('https://www.cursemaven.com')
+        url = uri 'https://www.cursemaven.com'
         content {
             includeGroup 'curse.maven'
         }
     }
     maven {
         name = 'Modrinth'
-        url = uri('https://api.modrinth.com/maven')
+        url = uri 'https://api.modrinth.com/maven'
         content {
             includeGroup 'maven.modrinth'
         }
@@ -63,38 +67,39 @@ repositories {
 }
 
 dependencies {
+    //noinspection VulnerableLibrariesLocal
     minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
 
     //required
-    implementation(fg.deobf("curse.maven:theimpossiblelibrary-661115:${project.lib_version}"))
+    implementation "maven.modrinth:the-impossible-library:${project.lib_version}"
 
     //supported
-    implementation(fg.deobf("curse.maven:cavern-ii-285628:${project.cavern_version}"))
-    implementation(fg.deobf("curse.maven:game-stages-268655:${project.gamestages_version}"))
-    implementation(fg.deobf("curse.maven:libraryex-298965:${project.libex_version}"))
-    implementation(fg.deobf("curse.maven:netherex-248039:${project.netherex_version}"))
-    implementation(fg.deobf("curse.maven:nyx-349214:${project.nyx_version}"))
-    implementation(fg.deobf("curse.maven:scaling-health-248027:${project.scalinghealth_version}"))
-    implementation(fg.deobf("curse.maven:serene-seasons-291874:${project.seasons_version}"))
-    implementation(fg.deobf("curse.maven:silent-lib-242998:${project.slib_version}"))
-    implementation(fg.deobf("maven.modrinth:the-midnight:${project.midnight_version}"))
+    implementation fg.deobf("curse.maven:cavern-ii-285628:${project.cavern_version}")
+    implementation fg.deobf("curse.maven:game-stages-268655:${project.gamestages_version}")
+    implementation fg.deobf("curse.maven:libraryex-298965:${project.libex_version}")
+    implementation fg.deobf("curse.maven:netherex-248039:${project.netherex_version}")
+    implementation fg.deobf("curse.maven:nyx-349214:${project.nyx_version}")
+    implementation fg.deobf("curse.maven:scaling-health-248027:${project.scalinghealth_version}")
+    implementation fg.deobf("curse.maven:serene-seasons-291874:${project.seasons_version}")
+    implementation fg.deobf("curse.maven:silent-lib-242998:${project.slib_version}")
+    implementation fg.deobf("maven.modrinth:the-midnight:${project.midnight_version}")
 
     //for testing purposes
-    runtimeOnly(fg.deobf("curse.maven:aoa-311054:${project.aoa_version}"))
-    runtimeOnly(fg.deobf("curse.maven:bookshelf-228525:${project.bookshelf_version}"))
-    runtimeOnly(fg.deobf("curse.maven:brandons-core-231382:${project.bc_version}"))
-    runtimeOnly(fg.deobf("curse.maven:caliper-266824:${project.caliper_version}"))
-    runtimeOnly(fg.deobf("curse.maven:codechicken-lib-242818:${project.ccl_version}"))
-    runtimeOnly(fg.deobf("curse.maven:ender-zoo-225247:${project.enderzoo_version}"))
-    runtimeOnly(fg.deobf("curse.maven:daedalus-labyrinth-248424:${project.labyrinth_version}"))
-    runtimeOnly(fg.deobf("curse.maven:extra-utilities-225561:${project.xu2_version}"))
-    runtimeOnly(fg.deobf("curse.maven:had-enough-items-557549:${project.hei_version}"))
-    runtimeOnly(fg.deobf("curse.maven:lightningcraft-237422:${project.lightningcraft_version}"))
-    runtimeOnly("com.electronwill.night-config:json:${night_config_version}")
-    runtimeOnly(fg.deobf("curse.maven:redstone-flux-270789:${project.rf_version}"))
+    runtimeOnly fg.deobf("curse.maven:aoa-311054:${project.aoa_version}")
+    runtimeOnly fg.deobf("curse.maven:bookshelf-228525:${project.bookshelf_version}")
+    runtimeOnly fg.deobf("curse.maven:brandons-core-231382:${project.bc_version}")
+    runtimeOnly fg.deobf("curse.maven:caliper-266824:${project.caliper_version}")
+    runtimeOnly fg.deobf("curse.maven:codechicken-lib-242818:${project.ccl_version}")
+    runtimeOnly fg.deobf("curse.maven:ender-zoo-225247:${project.enderzoo_version}")
+    runtimeOnly fg.deobf("curse.maven:daedalus-labyrinth-248424:${project.labyrinth_version}")
+    runtimeOnly fg.deobf("curse.maven:extra-utilities-225561:${project.xu2_version}")
+    runtimeOnly fg.deobf("curse.maven:had-enough-items-557549:${project.hei_version}")
+    runtimeOnly fg.deobf("curse.maven:lightningcraft-237422:${project.lightningcraft_version}")
+    runtimeOnly "com.electronwill.night-config:json:${night_config_version}"
+    runtimeOnly fg.deobf("curse.maven:redstone-flux-270789:${project.rf_version}")
 
     //mixin stuff
-    implementation(fg.deobf("curse.maven:mixin-booter-419286:${project.mixinbooter_version}"))
+    implementation fg.deobf("curse.maven:mixin-booter-419286:${project.mixinbooter_version}")
     annotationProcessor "org.spongepowered:mixin:${project.mixin_version}:processor"
 }
 

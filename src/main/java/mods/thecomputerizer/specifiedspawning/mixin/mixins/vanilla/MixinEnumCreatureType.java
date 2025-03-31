@@ -2,6 +2,7 @@ package mods.thecomputerizer.specifiedspawning.mixin.mixins.vanilla;
 
 import mods.thecomputerizer.specifiedspawning.core.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup;
+import mods.thecomputerizer.specifiedspawning.rules.group.SpawnGroup.Builder;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.passive.IAnimals;
@@ -14,14 +15,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static net.minecraft.block.material.Material.AIR;
+import static net.minecraft.block.material.Material.WATER;
+import static net.minecraft.entity.EnumCreatureType.AMBIENT;
+import static net.minecraft.entity.EnumCreatureType.CREATURE;
+import static net.minecraft.entity.EnumCreatureType.MONSTER;
+import static net.minecraft.entity.EnumCreatureType.WATER_CREATURE;
+
 @Mixin(EnumCreatureType.class)
 public abstract class MixinEnumCreatureType {
 
-    @Shadow @Final @Mutable private static EnumCreatureType[] $VALUES;
+    @Shadow(remap = false) @Final @Mutable private static EnumCreatureType[] $VALUES;
 
     @Shadow @Final private int maxNumberOfCreature;
 
-    @SuppressWarnings("SameParameterValue")
+    @SuppressWarnings({"SameParameterValue","unused"})
     @Invoker(value = "<init>")
     private static EnumCreatureType specifiedspawning$construct(
             String name, int ordinal,Class <? extends IAnimals> classType, int maxCreatures, Material mat,
@@ -32,15 +40,25 @@ public abstract class MixinEnumCreatureType {
     @Inject(at = @At("TAIL"), method = "<clinit>")
     private static void specifiedspawning$classInit(CallbackInfo cb) {
         for(EnumCreatureType type : $VALUES) {
-            if(type==EnumCreatureType.MONSTER)
-                SpawnManager.addExistingCreatureType("hostile",type);
-            else if(type==EnumCreatureType.CREATURE)
-                SpawnManager.addExistingCreatureType("passive",type);
-            else if(type==EnumCreatureType.AMBIENT)
-                SpawnManager.addExistingCreatureType("ambient",type);
-            else if(type==EnumCreatureType.WATER_CREATURE)
-                SpawnManager.addExistingCreatureType("aquatic",type);
-            else SpawnManager.addExistingCreatureType(type.name().toLowerCase(),type);
+            switch(type) {
+                case AMBIENT: {
+                    SpawnManager.addExistingCreatureType("ambient",type);
+                    continue;
+                }
+                case CREATURE: {
+                    SpawnManager.addExistingCreatureType("passive",type);
+                    continue;
+                }
+                case MONSTER: {
+                    SpawnManager.addExistingCreatureType("hostile",type);
+                    continue;
+                }
+                case WATER_CREATURE: {
+                    SpawnManager.addExistingCreatureType("aquatic",type);
+                    continue;
+                }
+                default: SpawnManager.addExistingCreatureType(type.name().toLowerCase(),type);
+            }
         }
         for(SpawnGroup.Builder builder : SpawnGroup.getBuilders()) {
             String name = builder.getName();
@@ -66,7 +84,7 @@ public abstract class MixinEnumCreatureType {
                 boolean isAquatic = builder.getAquatic().orElse(false);
                 builder.setAquatic(isAquatic);
                 EnumCreatureType newType = specifiedspawning$construct(name.toUpperCase(),$VALUES.length,IAnimals.class,
-                        count,isAquatic ? Material.WATER : Material.AIR,isPeaceful,isAnimal);
+                        count,isAquatic ? WATER : AIR,isPeaceful,isAnimal);
                 builder.setCreatureType(newType);
                 $VALUES = Arrays.copyOf($VALUES,$VALUES.length+1);
                 $VALUES[$VALUES.length-1] = newType;
@@ -76,15 +94,11 @@ public abstract class MixinEnumCreatureType {
         for(EnumCreatureType type : $VALUES) {
             if(!SpawnManager.hasBuilder(type)) {
                 String name = type.name().toLowerCase();
-                if(type==EnumCreatureType.MONSTER)
-                    name = "hostile";
-                else if(type==EnumCreatureType.CREATURE)
-                    name = "passive";
-                else if(type==EnumCreatureType.AMBIENT)
-                    name = "ambient";
-                else if(type==EnumCreatureType.WATER_CREATURE)
-                    name = "aquatic";
-                SpawnGroup.Builder builder = new SpawnGroup.Builder(name);
+                if(type==MONSTER) name = "hostile";
+                else if(type==CREATURE) name = "passive";
+                else if(type==AMBIENT) name = "ambient";
+                else if(type==WATER_CREATURE) name = "aquatic";
+                Builder builder = new Builder(name);
                 builder.setCount(type.getMaxNumberOfCreature());
                 builder.setPeaceful(type.getPeacefulCreature());
                 builder.setAnimal(type.getAnimal());
@@ -99,8 +113,8 @@ public abstract class MixinEnumCreatureType {
      * @author The_Computerizer
      * @reason Allow for dynamic mob caps so the game does not have to be restarted for spawn groups to be reset.
      */
-    @Overwrite
-    public int getMaxNumberOfCreature() {
+    @SuppressWarnings("DataFlowIssue")
+    @Overwrite public int getMaxNumberOfCreature() {
         return SpawnManager.getDynamicMaxNumberOfCreature((EnumCreatureType)(Object)this,this.maxNumberOfCreature);
     }
 }

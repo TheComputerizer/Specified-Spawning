@@ -18,12 +18,12 @@ import java.util.List;
 @Mixin(EntityLiving.class)
 public abstract class MixinEntityLiving implements IPotentialJockey {
 
-    @Unique
-    private final List<Jockey> specifiedspawning$potentialJockeys = new ArrayList<>();
+    @Unique private final List<Jockey> specifiedspawning$potentialJockeys = new ArrayList<>();
 
+    @SuppressWarnings("DataFlowIssue")
     @Inject(at = @At("TAIL"), method = "onInitialSpawn")
     private void specifiedspawning$onInitialSpawn(DifficultyInstance difficulty, IEntityLivingData livingdata,
-                                                  CallbackInfoReturnable<IEntityLivingData> cir) {
+            CallbackInfoReturnable<IEntityLivingData> cir) {
         EntityLiving living = (EntityLiving)(Object)this;
         if(!living.isBeingRidden() && !this.specifiedspawning$potentialJockeys.isEmpty()) {
             Jockey jockey = WeightedRandom.getRandomItem(living.world.rand,this.specifiedspawning$potentialJockeys);
@@ -31,8 +31,7 @@ public abstract class MixinEntityLiving implements IPotentialJockey {
         }
     }
 
-    @Override
-    public void specifiedspawning$addJockey(Jockey jockey) {
+    @Override public void specifiedspawning$addJockey(Jockey jockey) {
         this.specifiedspawning$potentialJockeys.add(jockey);
     }
 }
