@@ -4,6 +4,7 @@ import mods.thecomputerizer.specifiedspawning.core.ConfigManager;
 import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.core.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.rules.RuleManager;
+import mods.thecomputerizer.specifiedspawning.world.Events;
 import mods.thecomputerizer.specifiedspawning.world.ReloadCommand;
 import mods.thecomputerizer.specifiedspawning.world.SHHooks;
 import net.minecraftforge.fml.common.Loader;
@@ -63,6 +64,7 @@ public class SpecifiedSpawning {
         RULES_BUILT = false;
         Constants.logVerbose(INFO,"Reloading configs for world");
         if(isModLoaded("scalingdifficulty")) SHHooks.setLoadedScalingDifficultySelector(false);
+        Events.clearStageSelectors();
         SpawnManager.clear();
         RuleManager.clear();
         ConfigManager.clear();

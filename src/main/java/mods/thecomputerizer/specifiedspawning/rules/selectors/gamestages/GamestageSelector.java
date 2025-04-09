@@ -11,7 +11,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.GAMESTAGE;
@@ -29,6 +32,7 @@ public class GamestageSelector extends AbstractSelector {
                 table.getValueBool("all_players",false));
     }
 
+    private final Map<EntityPlayer,PlayerCache> cacheMap;
     private final List<String> stageNames;
     private final boolean isWhitelist;
     private final boolean allStages;
@@ -37,6 +41,7 @@ public class GamestageSelector extends AbstractSelector {
     private GamestageSelector(boolean isInverted, List<String> stageNames, boolean isWhitelist, boolean allStages,
                               boolean allPlayers) {
         super(isInverted);
+        this.cacheMap = new HashMap<>();
         this.stageNames = stageNames;
         this.isWhitelist = isWhitelist;
         this.allStages = allStages;
@@ -44,37 +49,74 @@ public class GamestageSelector extends AbstractSelector {
         Constants.logVerbose(DEBUG,"Instantiated new gamestage selector with stages {}",
                              TextHelper.fromIterable(stageNames," "));
     }
+    
+    public void cache(EntityPlayer player) {
+        if(!this.cacheMap.containsKey(player)) this.cacheMap.put(player,new PlayerCache(player));
+        this.cacheMap.get(player).cache(this.stageNames);
+    }
+    
+    public void clearCache() {
+        this.cacheMap.clear();
+    }
+    
+    @Override public SelectorType getType() {
+        return GAMESTAGE;
+    }
+    
+    private boolean isValidAll(Collection<EntityPlayer> players) {
+        for(EntityPlayer player : players) {
+            PlayerCache cache = this.cacheMap.get(player);
+            if(Objects.isNull(cache) || !cache.check(this.allStages,this.isWhitelist)) return false;
+        }
+        return true;
+    }
+    
+    private boolean isValidAny(Collection<EntityPlayer> players) {
+        for(EntityPlayer player : players) {
+            PlayerCache cache = this.cacheMap.get(player);
+            if(Objects.nonNull(cache) && cache.check(this.allStages,this.isWhitelist)) return true;
+        }
+        return false;
+    }
 
     @Override public boolean isValidInner(BlockPos pos, World world, String ruleDescriptor) {
         List<EntityPlayer> players = world.playerEntities;
-        if(players.isEmpty()) return false;
-        boolean any = false;
-        for(EntityPlayer player : players) {
-            if(checkPlayerStages(player)) {
-                if(!this.allPlayers) return true;
-                any = true;
-            } else if(this.allPlayers) return false;
-        }
-        return any;
-    }
-
-    private boolean checkPlayerStages(EntityPlayer player) {
-        if(this.allStages)
-            return this.isWhitelist ? GameStageHelper.hasAllOf(player,this.stageNames) :
-                    !GameStageHelper.hasAnyOf(player,this.stageNames);
-        boolean hasAny = GameStageHelper.hasAnyOf(player,this.stageNames);
-        return this.isWhitelist == hasAny;
+        if(players.isEmpty()) return !this.isWhitelist;
+        return this.allPlayers ? isValidAll(players) : isValidAny(players);
     }
 
     @Override public boolean isNonBasic() {
         return true;
     }
-
-    @Override public SelectorType getType() {
-        return GAMESTAGE;
+    
+    public void removeFromCache(EntityPlayer player) {
+        this.cacheMap.remove(player);
     }
 
     @Override public String toString() {
         return "Gamestage Selector ("+TextHelper.arrayToString(" ",this.stageNames.toArray())+")";
+    }
+    
+    private static final class PlayerCache {
+        
+        private final EntityPlayer player;
+        private boolean hasAny;
+        private boolean hasAll;
+        private boolean hasNone;
+        
+        PlayerCache(EntityPlayer player) {
+            this.player = player;
+        }
+        
+        void cache(Collection<String> stageNames) {
+            this.hasAll = Objects.nonNull(this.player) && GameStageHelper.hasAllOf(this.player,stageNames);
+            this.hasAny = this.hasAll ||
+                          (Objects.nonNull(this.player) && GameStageHelper.hasAnyOf(this.player,stageNames));
+            this.hasNone = !this.hasAny;
+        }
+        
+        boolean check(boolean all, boolean whitelist) {
+            return whitelist ? (all ? this.hasAll : this.hasAny) : this.hasNone;
+        }
     }
 }
