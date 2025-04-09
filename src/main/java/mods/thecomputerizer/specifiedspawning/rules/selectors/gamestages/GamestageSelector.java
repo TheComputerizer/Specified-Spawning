@@ -8,8 +8,10 @@ import mods.thecomputerizer.theimpossiblelibrary.api.text.TextHelper;
 import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
 import net.darkhax.gamestages.GameStageHelper;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -63,16 +65,25 @@ public class GamestageSelector extends AbstractSelector {
         return GAMESTAGE;
     }
     
+    private boolean invalidPlayer(EntityPlayer player) {
+        return player instanceof FakePlayer || !(player instanceof EntityPlayerMP);
+    }
+    
     private boolean isValidAll(Collection<EntityPlayer> players) {
+        boolean anyValidPlayer = false;
         for(EntityPlayer player : players) {
+            if(invalidPlayer(player)) continue;
+            anyValidPlayer = true;
             PlayerCache cache = this.cacheMap.get(player);
             if(Objects.isNull(cache) || !cache.check(this.allStages,this.isWhitelist)) return false;
         }
+        if(!anyValidPlayer) return !this.isWhitelist;
         return true;
     }
     
     private boolean isValidAny(Collection<EntityPlayer> players) {
         for(EntityPlayer player : players) {
+            if(invalidPlayer(player)) continue;
             PlayerCache cache = this.cacheMap.get(player);
             if(Objects.nonNull(cache) && cache.check(this.allStages,this.isWhitelist)) return true;
         }
