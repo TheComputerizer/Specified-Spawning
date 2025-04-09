@@ -7,6 +7,7 @@ import net.minecraftforge.fml.common.ModMetadata;
 
 import static mods.thecomputerizer.specifiedspawning.core.Constants.VERSION;
 
+@SuppressWarnings("UnstableApiUsage")
 public class CoreContainer extends DummyModContainer {
 
     public CoreContainer() {
@@ -19,7 +20,6 @@ public class CoreContainer extends DummyModContainer {
         meta.authorList.add("The_Computerizer");
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     @Override public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
         return true;

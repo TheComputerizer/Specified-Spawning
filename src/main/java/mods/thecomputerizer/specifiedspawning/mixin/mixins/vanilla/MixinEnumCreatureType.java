@@ -29,7 +29,7 @@ public abstract class MixinEnumCreatureType {
 
     @Shadow @Final private int maxNumberOfCreature;
 
-    @SuppressWarnings({"SameParameterValue","unused"})
+    @SuppressWarnings("SameParameterValue")
     @Invoker(value = "<init>")
     private static EnumCreatureType specifiedspawning$construct(
             String name, int ordinal,Class <? extends IAnimals> classType, int maxCreatures, Material mat,
@@ -37,7 +37,7 @@ public abstract class MixinEnumCreatureType {
         throw new IllegalStateException("Unreachable");
     }
 
-    @Inject(at = @At("TAIL"), method = "<clinit>")
+    @Inject(at = @At("TAIL"),method = "<clinit>")
     private static void specifiedspawning$classInit(CallbackInfo cb) {
         for(EnumCreatureType type : $VALUES) {
             switch(type) {
@@ -60,7 +60,7 @@ public abstract class MixinEnumCreatureType {
                 default: SpawnManager.addExistingCreatureType(type.name().toLowerCase(),type);
             }
         }
-        for(SpawnGroup.Builder builder : SpawnGroup.getBuilders()) {
+        for(Builder builder : SpawnGroup.getBuilders()) {
             String name = builder.getName();
             if(SpawnManager.isExistingCreatureType(name)) {
                 EnumCreatureType type = SpawnManager.getExistingCreatureType(name);

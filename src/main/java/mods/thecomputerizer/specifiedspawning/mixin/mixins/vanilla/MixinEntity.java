@@ -15,14 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Mixin(value = Entity.class, remap = false)
+@Mixin(value = Entity.class,remap = false)
 public abstract class MixinEntity implements ISpawnGroupObject {
 
     @Unique private SpawnGroup specifiedspawning$spawnGroup;
-
-    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     @Unique private boolean specifiedspawning$isModifiedSpawn;
-
     @Unique private SpawnPlacementType specifiedspawning$cachedSpawnType;
     @Unique private boolean specifiedspawning$ignoreSpawnConditions;
 

@@ -17,7 +17,6 @@ public class CorePlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     static {
         LOGGER.info("Loading core plugin");
-        ConfigManager.loadSpawnGroups(false);
     }
 
     @Override public String[] getASMTransformerClass() {

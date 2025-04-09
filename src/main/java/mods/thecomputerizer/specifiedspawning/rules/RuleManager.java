@@ -1,5 +1,6 @@
 package mods.thecomputerizer.specifiedspawning.rules;
 
+import mods.thecomputerizer.specifiedspawning.core.ConfigManager;
 import mods.thecomputerizer.specifiedspawning.core.Constants;
 import mods.thecomputerizer.specifiedspawning.mixin.access.ISpawnGroupObject;
 import mods.thecomputerizer.specifiedspawning.rules.spawn.DynamicSpawn;
@@ -12,7 +13,6 @@ import net.minecraft.world.biome.Biome.SpawnListEntry;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static mods.thecomputerizer.specifiedspawning.core.ConfigManager.INSTANCE;
 import static mods.thecomputerizer.specifiedspawning.core.Constants.LOGGER;
 import static net.minecraft.init.Biomes.HELL;
 import static org.apache.logging.log4j.Level.DEBUG;
@@ -22,7 +22,7 @@ public class RuleManager {
     public static final Map<RuleType,Set<IRuleBuilder>> RULE_BUILDERS = ThreadSafety.newMap(HashMap::new);
 
     public static void parseRuleTables() {
-        for(Entry<Integer,List<Toml>> tablesEntry : INSTANCE.getTableMap().entrySet()) {
+        for(Entry<Integer,List<Toml>> tablesEntry : ConfigManager.getTableEntries()) {
             for(Toml table : tablesEntry.getValue()) {
                 String ruleName = table.getName();
                 if(RuleType.isBaseRule(ruleName)) {
@@ -71,7 +71,7 @@ public class RuleManager {
     }
 
     public static void testSpecificBiome() {
-        if(INSTANCE.isMoreLogging()) {
+        if(ConfigManager.isMoreLogging()) {
             LOGGER.debug("Testing spawn entries for hell biome");
             for(EnumCreatureType creature : EnumCreatureType.values()) {
                 LOGGER.debug("Testing spawn entries for creature type {}",creature);
@@ -87,7 +87,7 @@ public class RuleManager {
     }
 
     public static void testEnumIterator() {
-        if(INSTANCE.isMoreLogging()) {
+        if(ConfigManager.isMoreLogging()) {
             LOGGER.debug("Testing enum iterator");
             for(EnumCreatureType type : EnumCreatureType.values()) LOGGER.debug("Enum Value - {}",type);
         }

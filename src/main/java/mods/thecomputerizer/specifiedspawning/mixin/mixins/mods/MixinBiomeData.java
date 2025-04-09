@@ -14,8 +14,7 @@ import java.util.Map;
 @Mixin(value = BiomeData.class, remap = false)
 public class MixinBiomeData {
 
-    @Shadow @Final protected Map<EnumCreatureType, List<SpawnListEntry>> entitySpawns;
-
+    @Shadow @Final protected Map<EnumCreatureType,List<SpawnListEntry>> entitySpawns;
     @Shadow @Final protected Biome biome;
 
     /**

@@ -15,13 +15,9 @@ import java.util.Map;
 public class MixinBiome {
 
     @Shadow protected List<SpawnListEntry> spawnableMonsterList;
-
     @Shadow protected List<SpawnListEntry> spawnableCreatureList;
-
     @Shadow protected List<SpawnListEntry> spawnableWaterCreatureList;
-
     @Shadow protected List<SpawnListEntry> spawnableCaveCreatureList;
-
     @Shadow(remap = false) protected Map<EnumCreatureType,List<SpawnListEntry>> modSpawnableLists;
 
     /**

@@ -46,7 +46,7 @@ public class SpawnManager {
         return EXISTING_CREATURE_TYPES.get(name);
     }
 
-    public static void setTypeBuilder(EnumCreatureType type, SpawnGroup.Builder builder) {
+    public static void setTypeBuilder(EnumCreatureType type, Builder builder) {
         BUILDERS_BY_TYPE.put(type,builder);
     }
 
@@ -78,9 +78,9 @@ public class SpawnManager {
     public static void clear() {
         for(Entry<Biome,Map<EnumCreatureType,List<SpawnListEntry>>> biomeEntry : DEFAULT_SPAWN_ENTRIES.entrySet()) {
             Biome biome = biomeEntry.getKey();
-            for(Entry<EnumCreatureType,List<Biome.SpawnListEntry>> creatureTypeEntry : biomeEntry.getValue().entrySet()) {
+            for(Entry<EnumCreatureType,List<SpawnListEntry>> creatureTypeEntry : biomeEntry.getValue().entrySet()) {
                 EnumCreatureType type = creatureTypeEntry.getKey();
-                List<Biome.SpawnListEntry> spawnEntries = creatureTypeEntry.getValue();
+                List<SpawnListEntry> spawnEntries = creatureTypeEntry.getValue();
                 biome.getSpawnableList(type).clear();
                 biome.getSpawnableList(type).addAll(spawnEntries);
             }

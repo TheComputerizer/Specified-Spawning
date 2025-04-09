@@ -10,17 +10,21 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.Map.Entry;
 
 import static mods.thecomputerizer.specifiedspawning.core.Constants.LOGGER;
 import static mods.thecomputerizer.specifiedspawning.core.Constants.MODID;
+import static mods.thecomputerizer.specifiedspawning.core.Constants.PRODUCTION_ENV;
 import static net.minecraft.launchwrapper.Launch.classLoader;
 import static org.apache.logging.log4j.Level.DEBUG;
 
 public class ConfigManager {
 
-    public static final String FOLDER_PATH = "config/SpecifiedSpawning";
-    public static File CONFIG;
-    public static ConfigManager INSTANCE;
+    private static final String FOLDER_PATH = "config/SpecifiedSpawning";
+    private static final String TOML_CLASS_NAME = "mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml";
+    private static ConfigManager INSTANCE;
+    private static boolean loadedGroups;
+    private static File mainConfig;
     
     private static void addSpawnGroupBuilder(Toml group) {
         new Builder(group.hasEntry("name") ? group.getValueString("name") : "hostile",
@@ -29,17 +33,34 @@ public class ConfigManager {
                 optionalBool(group,"aquatic"));
     }
     
-    public static void checkLibraryLoaded() {
+    public static void clear() {
+        if(Objects.nonNull(INSTANCE)) {
+            INSTANCE.otherConfigs.clear();
+            INSTANCE = null;
+        }
+    }
+    
+    private static void checkGroupsLoaded() {
+        if(!loadedGroups) {
+            loadSpawnGroups();
+            loadedGroups = true;
+        }
+    }
+    
+    private static void checkLibraryLoaded() {
+        boolean checkGroups = true;
         try {
-            Class.forName("mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml");
+            Class.forName(TOML_CLASS_NAME);
         } catch(Throwable ignored) { //An exception here should mean the libary source isn't loaded for some reason
             try {
                 classLoader.addURL(getLibraryLocation());
-                Class.forName("mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml");
+                Class.forName(TOML_CLASS_NAME);
             } catch(Throwable t) {
                 LOGGER.error("Library not found!",t);
+                checkGroups = false;
             }
         }
+        if(checkGroups) checkGroupsLoaded();
     }
 
     private static List<String> getDefaultLines() {
@@ -61,7 +82,7 @@ public class ConfigManager {
                 "");
     }
     
-    public static File getOrMakeConfigFile() {
+    private static File getOrMakeConfigFile() {
         String path = "config/"+MODID+".toml";
         File file = new File(path);
         if(!file.exists()) FileHelper.writeLines(file,getDefaultLines(),false);
@@ -77,6 +98,11 @@ public class ConfigManager {
         return null;
     }
     
+    public static ConfigManager getInstance() {
+        if(Objects.isNull(INSTANCE)) loadInstance();
+        return INSTANCE;
+    }
+    
     private static URL getLibraryLocation() {
         try {
             File file = findTILFile();
@@ -86,13 +112,24 @@ public class ConfigManager {
             throw new RuntimeException("Could not add The Impossible Library to the Class Loader >:(");
         }
     }
+    
+    public static Collection<Entry<Integer,List<Toml>>> getTableEntries() {
+        ConfigManager instance = getInstance();
+        Map<Integer,List<Toml>> map = Objects.nonNull(instance) ? instance.getTableMap() : Collections.emptyMap();
+        return map.entrySet();
+    }
+    
+    public static boolean isMoreLogging() {
+        ConfigManager instance = getInstance();
+        return Objects.nonNull(instance) && instance.moreLogging;
+    }
 
-    public static void loadInstance() {
+    private static void loadInstance() {
         checkLibraryLoaded();
         try {
-            INSTANCE = new ConfigManager(Toml.readFile(CONFIG));
-            if(INSTANCE.moreLogging) {
-                LOGGER.info("Parsing config file at {}",CONFIG.getPath());
+            INSTANCE = new ConfigManager(Toml.readFile(mainConfig));
+            if(isMoreLogging()) {
+                LOGGER.info("Parsing config file at {}",mainConfig.getPath());
                 int lineNum = 1;
                 List<String> lines = new ArrayList<>();
                 INSTANCE.parsedConfig.write(lines,0,true);
@@ -102,18 +139,18 @@ public class ConfigManager {
                 }
             }
         } catch(Exception ex) {
-            LOGGER.error("Failed to parse config file at {}!",CONFIG.getPath(),ex);
+            LOGGER.error("Failed to parse config file at {}!",mainConfig.getPath(),ex);
         }
     }
     
-    public static void loadSpawnGroups(boolean isProdEnv) {
-        if(isProdEnv) classLoader.addURL(getLibraryLocation());
-        CONFIG = getOrMakeConfigFile();
+    private static void loadSpawnGroups() {
+        if(PRODUCTION_ENV) classLoader.addURL(getLibraryLocation());
+        mainConfig = getOrMakeConfigFile();
         Toml toml;
         try {
-            toml = Toml.readFile(CONFIG);
+            toml = Toml.readFile(mainConfig);
         } catch(Throwable t) {
-            LOGGER.error("Failed to parse TOML file from {}",CONFIG);
+            LOGGER.error("Failed to parse TOML file from {}", mainConfig);
             return;
         }
         if(toml.hasTable("group"))
@@ -156,10 +193,6 @@ public class ConfigManager {
                 }
             }
         }
-    }
-
-    public boolean isMoreLogging() {
-        return this.moreLogging;
     }
 
     public Map<Integer,List<Toml>> getTableMap() {

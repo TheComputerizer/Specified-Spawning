@@ -21,7 +21,7 @@ import static mods.thecomputerizer.specifiedspawning.core.Constants.NAME;
 import static mods.thecomputerizer.specifiedspawning.core.Constants.VERSION;
 import static org.apache.logging.log4j.Level.INFO;
 
-@Mod(modid=MODID, name=NAME, version=VERSION, dependencies=DEPENDENCIES)
+@Mod(modid=MODID,name=NAME,version=VERSION,dependencies=DEPENDENCIES)
 public class SpecifiedSpawning {
 
     private static final Set<String> CHECKED_MODS = Collections.synchronizedSet(new HashSet<>());
@@ -29,7 +29,6 @@ public class SpecifiedSpawning {
     public static boolean RULES_BUILT = false;
 
     public SpecifiedSpawning() {
-        ConfigManager.loadInstance();
         RuleManager.parseRuleTables();
     }
 
@@ -66,7 +65,7 @@ public class SpecifiedSpawning {
         if(isModLoaded("scalingdifficulty")) SHHooks.setLoadedScalingDifficultySelector(false);
         SpawnManager.clear();
         RuleManager.clear();
-        ConfigManager.loadInstance();
+        ConfigManager.clear();
         RuleManager.parseRuleTables();
         RuleManager.parseRuleSelectors();
         SpawnManager.buildSpawnGroups();
