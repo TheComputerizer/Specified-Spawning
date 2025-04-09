@@ -15,9 +15,9 @@ public class BiomeSelector extends ResourceSelector<Biome> {
     public static BiomeSelector makeSelector(Toml table) {
         if(Objects.isNull(table)) return null;
         return new BiomeSelector(table.getValueBool("inverted",false),
-                table.hasTable("mod") ? table.getValueString("mod") : "",
-                table.hasTable("biome") ? table.getValueString("biome") : "",
-                table.hasTable("matcher") ? table.getValueString("matcher") : "");
+                table.hasEntry("mod") ? table.getValueString("mod") : "",
+                table.hasEntry("biome") ? table.getValueString("biome") : "",
+                table.hasEntry("matcher") ? table.getValueString("matcher") : "");
     }
 
     private BiomeSelector(boolean isInverted, String mod, String biomeID, String matcher) {

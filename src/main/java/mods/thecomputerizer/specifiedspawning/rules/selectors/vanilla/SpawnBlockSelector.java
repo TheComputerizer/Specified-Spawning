@@ -20,9 +20,9 @@ public class SpawnBlockSelector extends ResourceSelector<Block> {
     public static SpawnBlockSelector makeSelector(Toml table) {
         if(Objects.isNull(table)) return null;
         return new SpawnBlockSelector(table.getValueBool("inverted",false),
-                table.hasTable("mod") ? table.getValueString("mod") : "",
-                table.hasTable("block") ? table.getValueString("block") : "",
-                table.hasTable("matcher") ? table.getValueString("matcher") : "");
+                table.hasEntry("mod") ? table.getValueString("mod") : "",
+                table.hasEntry("block") ? table.getValueString("block") : "",
+                table.hasEntry("matcher") ? table.getValueString("matcher") : "");
     }
 
     private final Set<Block> cachedBlocks;

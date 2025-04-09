@@ -21,10 +21,10 @@ public class EntitySelector extends ResourceSelector<EntityEntry> {
         if(Objects.isNull(table)) return null;
         Constants.logVerbose(DEBUG,"Making entity selector from table {}",table.getName());
         return new EntitySelector(table.getValueBool("inverted",false),
-                table.hasTable("mod") ? table.getValueString("mod") : "",
-                table.hasTable("entity") ? table.getValueString("entity") : "",
-                table.hasTable("matcher") ? table.getValueString("matcher") : "",
-                table.hasTable("type") ? table.getValueString("type") : "def",
+                table.hasEntry("mod") ? table.getValueString("mod") : "",
+                table.hasEntry("entity") ? table.getValueString("entity") : "",
+                table.hasEntry("matcher") ? table.getValueString("matcher") : "",
+                table.hasEntry("type") ? table.getValueString("type") : "def",
                 table.getValueBool("ignoreSpawnConditions",false),
                 table.getValueInt("min_group_size",1),
                 table.getValueInt("max_group_size",1),
