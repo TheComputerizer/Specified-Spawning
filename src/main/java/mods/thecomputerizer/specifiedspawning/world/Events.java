@@ -39,6 +39,7 @@ public class Events {
     @SubscribeEvent
     public static void onGetPotentialSpawns(PotentialSpawns event) {
         if(event.getWorld() instanceof WorldServer) {
+            SpecifiedSpawning.checkInitialLoad();
             WorldServer world = (WorldServer)event.getWorld();
             BlockPos pos = event.getPos();
             if(SpecifiedSpawning.isModLoaded("scalingdifficulty")) SHHooks.cachePlayerData(pos,world);

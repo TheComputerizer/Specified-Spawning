@@ -28,29 +28,18 @@ public class SpecifiedSpawning {
     private static final Set<String> CHECKED_MODS = Collections.synchronizedSet(new HashSet<>());
     private static final Set<String> LOADED_MODS = Collections.synchronizedSet(new HashSet<>());
     public static boolean RULES_BUILT = false;
-
-    public SpecifiedSpawning() {
-        RuleManager.parseRuleTables();
-    }
-
+    
     @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        RuleManager.parseRuleSelectors();
+    public void loadComplete(FMLPostInitializationEvent event) {
     }
-
-    @EventHandler
-    public void init(FMLInitializationEvent event) {}
-
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
-        SpawnManager.loadDefaultSpawnEntries();
-        SpawnManager.buildSpawnGroups();
-    }
-
+    
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event) {
-        RuleManager.buildRules();
-        RULES_BUILT = true;
+        RuleManager.parseRuleTables();
+        RuleManager.parseRuleSelectors();
+        SpawnManager.loadDefaultSpawnEntries();
+        SpawnManager.buildSpawnGroups();
+        RuleManager.buildRules(); //Build rules so tests can be run
     }
 
     @EventHandler
@@ -58,6 +47,18 @@ public class SpecifiedSpawning {
         event.registerServerCommand(new ReloadCommand());
         RuleManager.testSpecificBiome();
         RuleManager.testEnumIterator();
+    }
+    
+    @EventHandler
+    public void serverStarting(FMLServerStoppingEvent event) {
+        RULES_BUILT = false;
+    }
+    
+    /**
+     * Load rules as late as possible (the first time the PotentialSpawns event is called)
+     */
+    public static void checkInitialLoad() {
+        if(!RULES_BUILT) reload();
     }
 
     public static void reload() {
