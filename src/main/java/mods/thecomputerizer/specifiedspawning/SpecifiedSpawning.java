@@ -46,7 +46,7 @@ public class SpecifiedSpawning {
     }
     
     @EventHandler
-    public void serverStarting(FMLServerStoppingEvent event) {
+    public void serverStopping(FMLServerStoppingEvent event) {
         RULES_BUILT = false;
     }
     
