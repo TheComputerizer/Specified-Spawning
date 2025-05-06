@@ -30,10 +30,6 @@ public class SpecifiedSpawning {
     public static boolean RULES_BUILT = false;
     
     @EventHandler
-    public void loadComplete(FMLPostInitializationEvent event) {
-    }
-    
-    @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event) {
         RuleManager.parseRuleTables();
         RuleManager.parseRuleSelectors();
