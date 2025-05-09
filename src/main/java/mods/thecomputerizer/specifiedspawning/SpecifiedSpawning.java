@@ -29,12 +29,23 @@ public class SpecifiedSpawning {
     private static final Set<String> LOADED_MODS = Collections.synchronizedSet(new HashSet<>());
     public static boolean RULES_BUILT = false;
     
-    @EventHandler
-    public void loadComplete(FMLLoadCompleteEvent event) {
+    public SpecifiedSpawning() {
         RuleManager.parseRuleTables();
+    }
+    
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
         RuleManager.parseRuleSelectors();
+    }
+    
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
         SpawnManager.loadDefaultSpawnEntries();
         SpawnManager.buildSpawnGroups();
+    }
+    
+    @EventHandler
+    public void loadComplete(FMLLoadCompleteEvent event) {
         RuleManager.buildRules(); //Build rules so tests can be run
     }
 

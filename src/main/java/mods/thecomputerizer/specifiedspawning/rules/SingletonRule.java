@@ -45,7 +45,8 @@ public abstract class SingletonRule extends AbstractRule {
 
     public void apply() {
         Collection<SpawnGroup> groups = getSpawnGroups();
-        for(Biome biome : this.biomes) apply(biome,groups);
+        for(Biome biome : this.biomes)
+            if(Objects.nonNull(biome)) apply(biome,groups);
     }
 
     protected abstract void apply(Biome biome, Collection<SpawnGroup> groups);

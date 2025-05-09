@@ -14,7 +14,6 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static net.minecraftforge.fml.common.registry.ForgeRegistries.BIOMES;
 import static net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES;
@@ -34,9 +33,9 @@ public abstract class AbstractRule implements IRule {
     }
 
     public Collection<SpawnGroup> getSpawnGroups() {
-        return (this.groupName.equals("all") ? SpawnManager.getAllSpawnGroups() :
-                Collections.singleton(SpawnManager.getSpawnGroup(this.groupName))).stream().filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        if("all".equals(this.groupName)) return SpawnManager.getAllSpawnGroups();
+        SpawnGroup group = SpawnManager.getSpawnGroup(this.groupName);
+        return Objects.nonNull(group) ? Collections.singletonList(group) : Collections.emptyList();
     }
 
     protected void setRuleDescriptor() {

@@ -16,8 +16,8 @@ import net.minecraft.entity.EntityLiving.SpawnPlacementType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.logging.log4j.Level;
 
@@ -26,6 +26,13 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.BIOME;
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.ENTITY;
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.SCALINGDIFFICULTY;
+import static mods.thecomputerizer.specifiedspawning.rules.selectors.SelectorType.SPAWNBLOCK;
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.BIOMES;
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.BLOCKS;
+import static net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES;
 import static org.apache.logging.log4j.Level.DEBUG;
 import static org.apache.logging.log4j.Level.INFO;
 
@@ -49,8 +56,8 @@ public abstract class DynamicRule extends AbstractRule {
         dynamicSelectors.removeIf(selector -> {
             SelectorType type = selector.getType();
             if(selector instanceof BiomeSelector) this.biomeSelectors.add((BiomeSelector)selector);
-            if(type==SelectorType.BIOME || type==SelectorType.ENTITY) return true;
-            if(type==SelectorType.SCALINGDIFFICULTY) SHHooks.setLoadedScalingDifficultySelector(true);
+            if(type==BIOME || type==ENTITY) return true;
+            if(type==SCALINGDIFFICULTY) SHHooks.setLoadedScalingDifficultySelector(true);
             counterMap.putIfAbsent(type,new MutableInt());
             counterMap.get(type).increment();
             return false;
@@ -69,28 +76,29 @@ public abstract class DynamicRule extends AbstractRule {
         logExcessiveCollection(this.dynamicTypeMap.entrySet(), entry ->
                 "(Map Entry) | Key("+entry.getKey().toString()+") | Value("+entryToString(entry.getValue())+")");
         if(Objects.isNull(this.entitySelectors) || this.entitySelectors.isEmpty()) {
-            this.entities = new HashSet<>(ForgeRegistries.ENTITIES.getValuesCollection());
+            this.entities = new HashSet<>(ENTITIES.getValuesCollection());
             this.entities.removeIf(entry -> !EntityLiving.class.isAssignableFrom(entry.getEntityClass()));
         }
         else this.entities = getEntities(this.entitySelectors);
         if(Objects.isNull(this.biomeSelectors) || this.biomeSelectors.isEmpty())
-            this.biomes = new HashSet<>(ForgeRegistries.BIOMES.getValuesCollection());
+            this.biomes = new HashSet<>(BIOMES.getValuesCollection());
         else this.biomes = getBiomes(this.biomeSelectors);
         for(ISelector selector : this.dynamicSelectors)
-            if(selector.getType()==SelectorType.SPAWNBLOCK)
+            if(selector.getType()==SPAWNBLOCK)
                 cacheBlockSelector((SpawnBlockSelector)selector);
         logExcessiveDebug("This rule is being assigned to {} unique entity entries in {} unique biomes",this.entities.size(),this.biomes.size());
     }
 
     public void cacheBlockSelector(SpawnBlockSelector selector) {
-        for(Block block : ForgeRegistries.BLOCKS.getValuesCollection())
+        for(Block block : BLOCKS.getValuesCollection())
             selector.isResourceValid(block,this.ruleDescriptor);
     }
 
-    public Set<Biome.SpawnListEntry> apply() {
-        Set<Biome.SpawnListEntry> ret = new HashSet<>();
+    public Set<SpawnListEntry> apply() {
+        Set<SpawnListEntry> ret = new HashSet<>();
         Collection<SpawnGroup> groups = getSpawnGroups();
-        for(Biome biome : this.biomes) ret.addAll(apply(biome,groups));
+        for(Biome biome : this.biomes)
+            if(Objects.nonNull(biome)) ret.addAll(apply(biome,groups));
         SpawnPlacementType type = null;
         for(EntitySelector selector : this.entitySelectors) {
             type = selector.getSpawnType();
@@ -103,7 +111,7 @@ public abstract class DynamicRule extends AbstractRule {
                 break;
             }
         }
-        for(Biome.SpawnListEntry entry : ret) {
+        for(SpawnListEntry entry : ret) {
             ISpawnGroupObject obj = (ISpawnGroupObject)entry;
             if(Objects.nonNull(type)) obj.specifiedspawning$setSpawnType(type);
             obj.specifiedspawning$setIgnoreSpawnConditions(ignoreSpawnConditions);
@@ -111,7 +119,7 @@ public abstract class DynamicRule extends AbstractRule {
         return ret;
     }
 
-    protected abstract Set<Biome.SpawnListEntry> apply(Biome biome, Collection<SpawnGroup> groups);
+    protected abstract Set<SpawnListEntry> apply(Biome biome, Collection<SpawnGroup> groups);
 
     protected Set<EntityEntry> getEntities() {
         return this.entities;

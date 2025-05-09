@@ -153,9 +153,16 @@ public class ConfigManager {
             LOGGER.error("Failed to parse TOML file from {}", mainConfig);
             return;
         }
-        if(toml.hasTable("group"))
-            for(Toml groupToml : toml.getTableArray("group"))
+        Toml[] groups = toml.getTableArray("group");
+        boolean hasGroups = Objects.nonNull(groups);
+        LOGGER.info("Loading {} custom spawn groups",hasGroups ? groups.length : 0);
+        if(hasGroups) {
+            for(Toml groupToml : toml.getTableArray("group")) {
+                LOGGER.info("Loading custom spawn group with {}",
+                            groupToml.getValueString("name","missing_name"));
                 addSpawnGroupBuilder(groupToml);
+            }
+        }
     }
     
     private static Optional<Boolean> optionalBool(Toml group, String var) {

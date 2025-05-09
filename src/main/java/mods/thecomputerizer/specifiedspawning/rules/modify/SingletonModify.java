@@ -9,6 +9,7 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.vanilla.EntitySele
 import mods.thecomputerizer.specifiedspawning.core.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
 import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -16,8 +17,11 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static mods.thecomputerizer.specifiedspawning.core.Constants.LOGGER;
 
 public class SingletonModify extends SingletonRule implements IModifyRule {
 
@@ -58,7 +62,18 @@ public class SingletonModify extends SingletonRule implements IModifyRule {
                     return false;
                 });
                 SpawnGroup newGroup = SpawnManager.getSpawnGroup(this.newGroupName);
-                List<SpawnListEntry> entries = biome.getSpawnableList(newGroup.getType());
+                if(Objects.isNull(newGroup)) {
+                    LOGGER.error("Failed to find spawn group {} for singleton-modify rule! Falling back to {}",
+                                 this.newGroupName,SpawnManager.getSpawnGroupName(group));
+                    newGroup = group;
+                }
+                EnumCreatureType newType = newGroup.getType();
+                if(Objects.isNull(newType)) {
+                    LOGGER.error("Failed to retrieve creature type for spawn group {}",
+                                 SpawnManager.getSpawnGroupName(newGroup));
+                    continue;
+                }
+                List<SpawnListEntry> entries = biome.getSpawnableList(newType);
                 for(SpawnListEntry entry : modifiedGroupEntries) {
                     ISpawnGroupObject obj = (ISpawnGroupObject)entry;
                     obj.specifiedspawning$setSpawnGroup(newGroup, true);

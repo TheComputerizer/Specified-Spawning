@@ -9,6 +9,7 @@ import mods.thecomputerizer.specifiedspawning.rules.selectors.ISelector;
 import mods.thecomputerizer.specifiedspawning.core.SpawnManager;
 import mods.thecomputerizer.specifiedspawning.world.entity.Jockey;
 import mods.thecomputerizer.theimpossiblelibrary.api.toml.Toml;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -16,8 +17,11 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static mods.thecomputerizer.specifiedspawning.core.Constants.LOGGER;
 
 public class DynamicModify extends DynamicRule implements IModifyRule {
 
@@ -37,6 +41,7 @@ public class DynamicModify extends DynamicRule implements IModifyRule {
         Set<SpawnListEntry> ret = new HashSet<>();
         for(EntityEntry entity : getEntities()) {
             for(SpawnGroup group : groups) {
+                if(Objects.isNull(group)) continue;
                 Set<SpawnListEntry> modifiedGroupEntries = new HashSet<>();
                 biome.getSpawnableList(group.getType()).removeIf(entry -> {
                     if(entry.entityClass==entity.getEntityClass()) {
@@ -58,7 +63,18 @@ public class DynamicModify extends DynamicRule implements IModifyRule {
                     return false;
                 });
                 SpawnGroup newGroup = SpawnManager.getSpawnGroup(this.newGroupName);
-                List<SpawnListEntry> entries = biome.getSpawnableList(newGroup.getType());
+                if(Objects.isNull(newGroup)) {
+                    LOGGER.error("Failed to find spawn group {} for dynamic-modify rule! Falling back to {}",
+                                 this.newGroupName,SpawnManager.getSpawnGroupName(group));
+                    newGroup = group;
+                }
+                EnumCreatureType newType = newGroup.getType();
+                if(Objects.isNull(newType)) {
+                    LOGGER.error("Failed to retrieve creature type for spawn group {}",
+                                 SpawnManager.getSpawnGroupName(newGroup));
+                    continue;
+                }
+                List<SpawnListEntry> entries = biome.getSpawnableList(newType);
                 for(SpawnListEntry entry : modifiedGroupEntries) {
                     ((ISpawnGroupObject) entry).specifiedspawning$setSpawnGroup(newGroup,true);
                     for(Jockey jockey : this.jockeys) ((IPotentialJockey)entry).specifiedspawning$addJockey(jockey);
